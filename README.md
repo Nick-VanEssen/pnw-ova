@@ -1,5 +1,5 @@
 # Purdue-Northwest-Vibration-Analysis
-Vibration analysis senior design project for Purdue Northwest.
+Vibration Analysis senior design project for Purdue Northwest.
 
 # Background
 Household appliances breaking down is a costly issue for everyday consumers. 
