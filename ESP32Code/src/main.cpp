@@ -7,9 +7,6 @@
 #include "main.h"
 #include "builtinPage.h"
 
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
-
 bool ledState = 0;
 const int ledPin = 2;
 
