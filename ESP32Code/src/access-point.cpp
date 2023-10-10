@@ -4,8 +4,8 @@
 #include <ESPmDNS.h>
 #include <DNSServer.h>
 
-const char *ssid = "ESP32";
-const char *password = "YourPSKHere";
+const char *accessSsid = "ESP32";
+const char *accessPassword = "YourPSKHere";
 
 WebServer server(80);
 DNSServer dnsServer;
@@ -21,25 +21,7 @@ void handleRoot() {
   int min = sec / 60;
   int hr = min / 60;
 
-  snprintf(temp, 400,
-
-           "<html>\
-  <head>\
-    <meta http-equiv='refresh' content='5'/>\
-    <title>ESP32 Demo</title>\
-    <style>\
-      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-    </style>\
-  </head>\
-  <body>\
-    <h1>Hello from ESP32!</h1>\
-    <p>Uptime: %02d:%02d:%02d</p>\
-    <img src=\"/test.svg\" />\
-  </body>\
-</html>",
-
-           hr, min % 60, sec % 60
-          );
+  snprintf(temp, 400, "wifiSetup.html", hr, min % 60, sec % 60);
   server.send(200, "text/html", temp);
   digitalWrite(LED_BUILTIN, 0);
 }
@@ -86,12 +68,12 @@ void setup(void) {
   digitalWrite(LED_BUILTIN, 0);
   Serial.begin(115200);
   WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password);
+  WiFi.softAP(accessSsid, accessPassword);
   Serial.println("");
 
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println(accessSsid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
