@@ -1,3 +1,4 @@
+#define FORMAT_LITTLEFS_IF_FAILED true
 
 // Import required libraries
 #include <WiFi.h>
@@ -5,9 +6,6 @@
 #include <ESPAsyncWebServer.h>
 #include <DNSServer.h>
 #include <LittleFS.h>
-#include <WebServer.h>
-#include <HTTPClient.h>
-#include <HTTPUpdate.h>
 
 #include "main.h"
 #include "builtinPage.h"
@@ -20,7 +18,6 @@ const int ledPin = 2;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 DNSServer dnsServer;
-
 
 void notifyClients() {
   ws.textAll(String(ledState));
@@ -76,7 +73,8 @@ String processor(const String& var){
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
-
+  LittleFS.begin();
+  
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
   
@@ -84,7 +82,7 @@ void setup(){
 
   WiFi.begin(ssid, password);
   int i = 0;
-  Serial.printf("Waiting for connection...");
+  Serial.print("Waiting for connection...");
  while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     vTaskDelay(1000 / portTICK_RATE_MS);
@@ -115,29 +113,11 @@ void setup(){
   initWebSocket();
 
   // Route for root / web page
-  server.on("/wifiSetup.html", handleLittleFSFile);
-
+server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  request->send(LittleFS, "/wifiSetup.html", String(), false, processor);
+});
   // Start server
   server.begin();
-
-    void HTTP_Server::handleLittleFSFile() {
-    String filename = server.uri();
-    int dotPosition = filename.lastIndexOf(".");
-    String fileType = filename.substring((dotPosition + 1), filename.length());
-    if (LittleFS.exists(filename)) {
-      File file = LittleFS.open(filename, FILE_READ);
-      if (fileType == "gz") {
-        fileType = "html";  // no need to change content type as it's done automatically by .streamfile below VV
-      }
-      server.streamFile(file, "text/" + fileType);
-      file.close();
-    } else if (!LittleFS.exists("/index.html")) {
-      handleIndexFile();
-    } else {
-      String outputhtml = "<html><body><h1>ERROR 404 <br> FILE NOT FOUND!" + filename + "</h1></body></html>";
-      server.send(404, "text/html", outputhtml);
-    }
-  }
 }
 
 void loop() {
