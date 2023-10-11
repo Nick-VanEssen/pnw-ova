@@ -1,11 +1,10 @@
+/*
 #include <WiFi.h>
 #include "WiFiAP.h"
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
-
-const char *accessSsid = "ESP32";
-const char *accessPassword = "YourPSKHere";
+#include "main.h"
 
 WebServer server(80);
 DNSServer dnsServer;
@@ -63,7 +62,7 @@ void handleNotFound() {
   digitalWrite(LED_BUILTIN, 0);
 }
 
-void setup(void) {
+void initAccesss(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, 0);
   Serial.begin(115200);
@@ -97,3 +96,4 @@ void loop(void) {
   server.handleClient();
   vTaskDelay(2);//allow the cpu to switch to other tasks
 }
+*/

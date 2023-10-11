@@ -3,9 +3,15 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <DNSServer.h>
+#include <LittleFS.h>
+#include <WebServer.h>
+#include <HTTPClient.h>
+#include <HTTPUpdate.h>
 
 #include "main.h"
 #include "builtinPage.h"
+#define WIFI_CONNECT_TIMEOUT 10
 
 bool ledState = 0;
 const int ledPin = 2;
@@ -13,6 +19,8 @@ const int ledPin = 2;
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
+DNSServer dnsServer;
+
 
 void notifyClients() {
   ws.textAll(String(ledState));
@@ -73,24 +81,63 @@ void setup(){
   digitalWrite(ledPin, LOW);
   
   // Connect to Wi-Fi
+
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
+  int i = 0;
+  Serial.printf("Waiting for connection...");
+ while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    vTaskDelay(1000 / portTICK_RATE_MS);
+    i++;
+    if (i > WIFI_CONNECT_TIMEOUT) {
+      i = 0;
+      WiFi.disconnect();
+      WiFi.mode(WIFI_AP);
+      break;
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+    Serial.printf("Connected!");
+    }
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Starting AP mode because no network available...");
+    WiFi.softAP(accessSsid, accessPassword);
+    dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+    dnsServer.start(53, "*", WiFi.localIP());
+    Serial.print("AP started. Please verify.");
+    Serial.print(" ");
+    // Print ESP Local IP Address
+   Serial.println(WiFi.softAPIP());
+   
   }
 
-  // Print ESP Local IP Address
-  Serial.println(WiFi.localIP());
 
   initWebSocket();
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", index_html, processor);
-  });
+  server.on("/wifiSetup.html", handleLittleFSFile);
 
   // Start server
   server.begin();
+
+    void HTTP_Server::handleLittleFSFile() {
+    String filename = server.uri();
+    int dotPosition = filename.lastIndexOf(".");
+    String fileType = filename.substring((dotPosition + 1), filename.length());
+    if (LittleFS.exists(filename)) {
+      File file = LittleFS.open(filename, FILE_READ);
+      if (fileType == "gz") {
+        fileType = "html";  // no need to change content type as it's done automatically by .streamfile below VV
+      }
+      server.streamFile(file, "text/" + fileType);
+      file.close();
+    } else if (!LittleFS.exists("/index.html")) {
+      handleIndexFile();
+    } else {
+      String outputhtml = "<html><body><h1>ERROR 404 <br> FILE NOT FOUND!" + filename + "</h1></body></html>";
+      server.send(404, "text/html", outputhtml);
+    }
+  }
 }
 
 void loop() {
