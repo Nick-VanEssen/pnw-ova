@@ -9,7 +9,7 @@ void setup() {
 
   // The I2S config as per the example
   const i2s_config_t i2s_config = {
-      .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX), // Receive, not transfer
+      .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_PDM), // Receive, not transfer
       .sample_rate = 16000,                         // 16KHz
       .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT, // could only get it to work with 32bits
       .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT, // use right channel
@@ -42,13 +42,13 @@ void setup() {
   Serial.println("I2S driver installed.");
 }
 
-int32_t buffer[512];    // Buffer
-volatile uint16_t rpt = 0; // Pointer
-const int block_size = 128;
 
 void loop() {
   // Read a single sample and log it for the Serial Plotter.
+  int32_t buffer[512];    // Buffer
+  volatile uint16_t rpt = 0; // Pointer
   int32_t sample = 0;
+  const int block_size = 128;
   size_t num_bytes_read;
     int err = i2s_read(I2S_PORT, (char*)buffer + rpt, block_size, &num_bytes_read, portMAX_DELAY);
     if (err != ESP_OK) {
@@ -65,9 +65,6 @@ void loop() {
     // }
     //if (sample > 1900000000)
     //{
-    for(int i: buffer) {
-        Serial.println(buffer[i]);
-    }
     //}
     }
 
