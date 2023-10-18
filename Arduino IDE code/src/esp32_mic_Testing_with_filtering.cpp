@@ -1,5 +1,5 @@
 #include "driver/i2s.h"
-
+#include <Arduino.h>
 
 const i2s_port_t I2S_PORT = I2S_NUM_0;
 
@@ -42,24 +42,34 @@ void setup() {
   Serial.println("I2S driver installed.");
 }
 
+int32_t buffer[512];    // Buffer
+volatile uint16_t rpt = 0; // Pointer
+const int block_size = 128;
+
 void loop() {
   // Read a single sample and log it for the Serial Plotter.
   int32_t sample = 0;
-  int bytes_read = i2s_pop_sample(I2S_PORT, (char *)&sample, portMAX_DELAY); // no timeout
-  if (bytes_read > 0) {
-    if (abs(sample) < 1970000000) 
-    {
-    sample = 0;
-    }
-    else
-    {
-    sample=sample*.000001;
-    }
+  size_t num_bytes_read;
+    int err = i2s_read(I2S_PORT, (char*)buffer + rpt, block_size, &num_bytes_read, portMAX_DELAY);
+    if (err != ESP_OK) {
+        Serial.printf("Failed to read i2s_mic: %d\n", err);
+        while (true);
+    }  if (num_bytes_read > 0) {
+    // if (abs(buffer) < 1970000000) 
+    // {
+    // buffer = 0;
+    // }
+    // else
+    // {
+    // buffer=buffer*.000001;
+    // }
     //if (sample > 1900000000)
     //{
-    Serial.println(sample);
+    for(int i: buffer) {
+        Serial.println(buffer[i]);
+    }
     //}
-  }
+    }
 
 
 }

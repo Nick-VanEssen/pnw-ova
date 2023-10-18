@@ -1,7 +1,7 @@
 #include "driver/i2s.h"
 
-
 const i2s_port_t I2S_PORT = I2S_NUM_0;
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 
 void setup() {
   Serial.begin(115200);
