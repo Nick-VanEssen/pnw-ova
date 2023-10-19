@@ -42,8 +42,6 @@ void setup()
   if (!res)
   {
     Serial.println("Failed to connect"); // print results
-    ESP.restart();                       // restart
-    delay(1000);
   }
   Serial.println("Connection Successful!");
 }
