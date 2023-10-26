@@ -38,7 +38,7 @@ void setup()
   // WiFi Manager setup
   WiFiManager wm;
   bool res;
-  res = wm.autoConnect("ESP32", "password"); // ssid and password for access point
+  res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
   if (!res)
   {
     Serial.println("Failed to connect"); // print results
