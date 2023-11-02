@@ -5,6 +5,10 @@ using namespace std;
 void fft(double xval, double yval, double zval) {
     // DO FFT
     
+    std::map<double, double> xmap;
+    std::map<double, double> ymap;
+    std::map<double, double> zmap;
+
     &fft_signal.push_back(xval);
 
     // DETECT WHAT STAGE
