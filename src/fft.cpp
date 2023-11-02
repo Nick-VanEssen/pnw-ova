@@ -1,8 +1,9 @@
 #include <Arduino.h>
-#include <FFT_signal.h>
+#include <fftw.h>
 using namespace std;
+using namespace std::chrono;
 
-void fft(double xval, double yval, double zval) {
+void fft(double xval, double yval, double zval, high_resolution_clock::time_point time) {
     // DO FFT
     
     std::map<double, double> xmap;
