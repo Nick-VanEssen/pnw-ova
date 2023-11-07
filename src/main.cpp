@@ -3,11 +3,11 @@
 // Import required libraries
 #include <LittleFS.h>
 #include <WiFiManager.h>
-#include <acc.cpp>
+#include <acc.h>
+// #include <main.h>
 
 bool ledState = 0;
 const int ledPin = 2;
-high_resolution_clock::time_point start;
 
 DNSServer dnsServer;
 
@@ -28,9 +28,9 @@ String processor(const String &var)
   return String();
 }
 
-void startTime() {
-  start = high_resolution_clock::now();
-}
+// void startTime() {
+//   start = high_resolution_clock::now();
+// }
 
 void setup()
 {
@@ -51,7 +51,7 @@ void setup()
     Serial.println("Failed to connect"); // print results
   }
   Serial.println("Connection Successful!");
-  startTime();
+  // startTime();
 }
 
 void loop()
