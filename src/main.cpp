@@ -33,6 +33,10 @@ void startTime() {
   start = high_resolution_clock::now();
 }
 
+high_resolution_clock::time_point getStartTime() {
+  return start;
+}
+
 void setup()
 {
   // Serial port for debugging purposes

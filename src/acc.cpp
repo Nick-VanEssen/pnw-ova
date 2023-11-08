@@ -36,11 +36,12 @@ void accLoop() {
     Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
     
     auto stop = high_resolution_clock::now();
-    const int time = (high_resolution_clock::now() - start).count();
+    
+    const int time = (high_resolution_clock::now() - getStartTime()).count();
+    Serial.print("Time: "); Serial.print(time); Serial.print("  ");
     send(xval,yval,zval, time);
     }
     i = 0;
   // /*Take a 0.1 second break*/
     delay(100);
-
 }
