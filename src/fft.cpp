@@ -1,16 +1,24 @@
 #include <Arduino.h>
 // #include <fftw.h>
 #include <chrono>
+#include <map>
 using namespace std;
 using namespace std::chrono;
 
 void fft(double xval, double yval, double zval, int time) {
     // DO FFT
     
-    // std::map<double, double> xmap;
-    // std::map<double, double> ymap;
-    // std::map<double, double> zmap;
+    std::map<int, double> xmap;
+    std::map<int, double> ymap;
+    std::map<int, double> zmap;
 
+    xmap.insert(pair<int, double>(time, xval));
+    ymap.insert(pair<int, double>(time, yval));
+    zmap.insert(pair<int, double>(time, zval));
+
+    double val = xval + yval + zval;
+    
+    
     // &fft_signal.push_back(xval);
 
     // DETECT WHAT STAGE
