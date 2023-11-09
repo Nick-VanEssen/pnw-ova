@@ -108,10 +108,10 @@ void setup()
   SMTP_Message message;
 
   // Set the message headers
-  message.sender.name = F("Open Vibration Analysis");
+  message.sender.name = F("OVA Test");
   message.sender.email = AUTHOR_EMAIL;
-  message.subject = F("OVA Test Email");
-  message.addRecipient(F("Test"), RECIPIENT_EMAIL);
+  message.subject = F("Test Email");
+  message.addRecipient(F("Matt"), RECIPIENT_EMAIL);
 
   // Send HTML message
   /*String htmlMsg = "<div style=\"color:#2f4468;\"><h1>Hello World!</h1><p>- Sent from ESP board</p></div>";
