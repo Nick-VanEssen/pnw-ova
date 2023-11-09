@@ -47,15 +47,15 @@ void setup()
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
-  // WiFi Manager setup
-  WiFiManager wm;
-  bool res;
-  res = wm.autoConnect("ESP32", "password"); // ssid and password for access point
-  if (!res)
-  {
-    Serial.println("Failed to connect"); // print results
-  }
-  Serial.println("Connection Successful!");
+  // // WiFi Manager setup
+  // WiFiManager wm;
+  // bool res;
+  // res = wm.autoConnect("ESP32", "password"); // ssid and password for access point
+  // if (!res)
+  // {
+  //   Serial.println("Failed to connect"); // print results
+  // }
+  // Serial.println("Connection Successful!");
   startTime();
 }
 

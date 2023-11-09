@@ -21,27 +21,25 @@ void send(double xval, double yval, double zval, long time) {
 }
 
 void accLoop() {
-  int i = 0;;
-  for(i;i=2047;i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
     sensors_event_t event;
     accel.getEvent(&event);
     double xval = (event.acceleration.x);
     double yval = (event.acceleration.y);
-    double zval = (event.acceleration.z)/9.81;
+    double zval = (event.acceleration.z)-9.81; //will need to change what variable is affected by gravity depending on board orientation
 
     Serial.print("X: "); Serial.print(xval); Serial.print("  ");
     Serial.print("Y: "); Serial.print(yval); Serial.print("  ");
     Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
     
     auto stop = high_resolution_clock::now();
-    
-    const int time = (high_resolution_clock::now() - getStartTime()).count();
-    Serial.print("Time: "); Serial.print(time); Serial.print("  ");
-    send(xval,yval,zval, time);
-    }
-    i = 0;
-  // /*Take a 0.1 second break*/
-    delay(100);
+  
+    duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
+    auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
+    Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
+    send(xval,yval,zval, milliseconds.count());
+
+   /*Take a 0.01 second break*/
+    delay(10);
 }
