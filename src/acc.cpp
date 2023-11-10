@@ -8,6 +8,8 @@
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
+double arr[2048][2];
+int i = 0;
 
 void accSetup() {
   Serial.println("");
@@ -16,11 +18,25 @@ void accSetup() {
   accel.begin();
 }
 
-void send(double xval, double yval, double zval, long time) {
-    fft(xval, yval, zval, time);
+void store(double xval, double yval, double zval, long time) {
+    // CREATE MAP AND STORE ACCELEROMETER VALUES        
+    std::map<long, double> xmap;
+    std::map<long, double> ymap;
+    std::map<long, double> zmap;
+
+    xmap.insert(pair<long, double>(time, xval));
+    ymap.insert(pair<long, double>(time, yval));
+    zmap.insert(pair<long, double>(time, zval));
+
+    // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
+    double val = xval + yval + zval;
+    arr[i][0] = val;
+    arr[i][1] = time;
+    fft(arr, time);
 }
 
 void accLoop() {
+  for(int i = 0; i <2048; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
     sensors_event_t event;
@@ -38,8 +54,9 @@ void accLoop() {
     duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
     auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
     Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
-    send(xval,yval,zval, milliseconds.count());
+    store(xval,yval,zval, milliseconds.count());
 
-   /*Take a 0.01 second break*/
-    delay(10);
+   /*Take a 0.3125 ms break*/
+    delay(0.3125);
+  }
 }

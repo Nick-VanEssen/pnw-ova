@@ -2,4 +2,7 @@
 #include <Arduino.h>
 
 /* *************** DECLARE FUNCTIONS HERE *************** */
-void fft(double xval, double yval, double zval, long time);
+void fft(double arr[2048][2], long time);
+
+
+/* *************** VARIABLES FUNCTIONS HERE *************** */

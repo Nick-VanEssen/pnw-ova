@@ -1,32 +1,24 @@
 #include <Arduino.h>
-// #include <fftw.h>
 #include <chrono>
 #include <map>
 using namespace std;
 using namespace std::chrono;
 
-void fft(double xval, double yval, double zval, long time) {
-    // CREATE MAP AND STORE ACCELEROMETER VALUES        
-    std::map<long, double> xmap;
-    std::map<long, double> ymap;
-    std::map<long, double> zmap;
-
-    xmap.insert(pair<long, double>(time, xval));
-    ymap.insert(pair<long, double>(time, yval));
-    zmap.insert(pair<long, double>(time, zval));
-
-    // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
-    double val = xval + yval + zval;
+void fft(double arr[2048][2], long time) {
     
-
-
     /* 
     https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
     FFTW3 is a great library that is popular and will work
-
+    
     https://stackoverflow.com/questions/5685765/computing-fft-and-ifft-with-fftw-library-c
     GOOD EXAMPLE
     
+    MAY SWITCH TO ARDUINOFFT
+    https://registry.platformio.org/libraries/kosme/arduinoFFT
+    EXAMPLE
+    https://registry.platformio.org/libraries/kosme/arduinoFFT/examples/FFT_01/FFT_01.ino
+    
+     break out fft into a new task so we can use for MIC
      question, we need a 2D array to do fftw, meaning we need to take a 
      sample -> do fft -> then store/ send to graph -> repeat
      we need to decide how often we want to update 1s?
