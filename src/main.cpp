@@ -39,8 +39,7 @@ void setup()
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
-  /***************** WiFi Manager *****************/
-
+  // WiFi Manager
   bool res;
   wm.setConfigPortalBlocking(false);                  // don't wait for user wifi setup
   res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
