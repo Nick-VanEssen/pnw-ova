@@ -1,34 +1,49 @@
-#include <Arduino.h>
 #include <chrono>
 #include <map>
+#include <fft.h>
 using namespace std;
 using namespace std::chrono;
 
-void fft(double arr[2048][2], long time) {
-    
-    /* 
-    https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
-    FFTW3 is a great library that is popular and will work
-    
-    https://stackoverflow.com/questions/5685765/computing-fft-and-ifft-with-fftw-library-c
-    GOOD EXAMPLE
-    
-    MAY SWITCH TO ARDUINOFFT
-    https://registry.platformio.org/libraries/kosme/arduinoFFT
-    EXAMPLE
-    https://registry.platformio.org/libraries/kosme/arduinoFFT/examples/FFT_01/FFT_01.ino
-    
-     break out fft into a new task so we can use for MIC
-     question, we need a 2D array to do fftw, meaning we need to take a 
-     sample -> do fft -> then store/ send to graph -> repeat
-     we need to decide how often we want to update 1s?
-     */
+void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
+{
+   for (uint16_t i = 0; i < bufferSize; i++)
+   {
+      double abscissa;
+      /* Print abscissa value */
+      switch (scaleType)
+      {
+         case SCL_INDEX:
+         abscissa = (i * 1.0);
+      break;
+      case SCL_TIME:
+         abscissa = ((i * 1.0) / samplingFrequency);
+      break;
+      case SCL_FREQUENCY:
+         abscissa = ((i * 1.0 * samplingFrequency) / samples);
+      break;
+   }
+   Serial.print(abscissa, 6);
+   if(scaleType==SCL_FREQUENCY)
+      Serial.print("Hz");
+      Serial.print(" ");
+      Serial.println(vData[i], 4);
+   }
+   Serial.println();
+}
 
+void fft(double arr[2048]) {
+   FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+   Serial.println("Weighed data:");
+   PrintVector(vReal, samples, SCL_TIME);
+   FFT.Compute(vReal, vImag, samples, FFT_FORWARD); //Compute FFT
+   Serial.println("Computed Real values:");
+   PrintVector(vReal, samples, SCL_INDEX);
+   Serial.println("Computed Imaginary values:");
+   PrintVector(vImag, samples, SCL_INDEX);
+   FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
+   Serial.println("Computed magnitudes:");
+   PrintVector(vReal, (samples >> 1), SCL_FREQUENCY);
+   double x = FFT.MajorPeak(vReal, samples, samplingFrequency);
+   Serial.println(x, 6);
 
-    /* ******* WILL DO LATER IN ANOTHER TASK *************
-    DETECT WHAT STAGE OR ALERT BAD
-    DISPLAY ON GRAPH IN FRONT END
-    STORE DATA IN MAP TO SAVE FOR LATER (may need linkedhashmap due to map not keeping order)
-    ADD MORE IF HAVE TO
-    */
 }
