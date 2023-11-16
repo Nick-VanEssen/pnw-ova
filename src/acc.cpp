@@ -10,7 +10,7 @@
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 double arr[2048][2];
 // test
-double arr2[2048];
+double arr2[8192];
 int i = 0;
 
 void accSetup() {
@@ -18,6 +18,7 @@ void accSetup() {
   Serial.println("Small example to read from ADXL345 accelerometer");
   
   accel.begin();
+  accLoop();
 }
 
 void store(double xval, double yval, double zval, long time) {
@@ -40,7 +41,7 @@ void store(double xval, double yval, double zval, long time) {
 }
 
 void accLoop() {
-  for(i = 0; i <2048; i++) {
+  for(i = 0; i <8192; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
     sensors_event_t event;

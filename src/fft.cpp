@@ -7,7 +7,7 @@ using namespace std::chrono;
 arduinoFFT FFT = arduinoFFT();
 
 const double samplingFrequency = 3600;
-const uint16_t samples = 2048;
+const uint16_t samples = 8192;
 double vReal[samples];
 double vImag[samples];
 
