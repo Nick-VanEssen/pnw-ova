@@ -53,15 +53,19 @@ void setup()
 
 void emailNotification();
 
+// set variable outside loop so it doesn't get set to false every loop
+bool _mailSent = false;
+
 void loop()
 {
-  bool _mailSent = false;
   digitalWrite(ledPin, ledState);
-  
+
   // commented out to clean terminal output
   // loopPDM();
-if(!_mailSent){
-  mailResults.send();
-}
+  if (!_mailSent)
+  {
+    mailResults.send();
+    _mailSent = true;
+  }
   wm.process();
 }
