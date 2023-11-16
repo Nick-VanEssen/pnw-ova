@@ -9,9 +9,10 @@ SMTPSession smtp;
 // Callback function to get the Email sending status
 void smtpCallback(SMTP_Status status);
 
-void MAILRESULTS::send(){
+void MAILRESULTS::send()
+{
 
-  //Set the network reconnection option
+  // Set the network reconnection option
   MailClient.networkReconnect(true);
 
   // Enable the debug via Serial port
@@ -33,15 +34,14 @@ void MAILRESULTS::send(){
   config.login.password = AUTHOR_PASSWORD;
   config.login.user_domain = "";
 
-  
   // Set the NTP config time
   // For times east of the Prime Meridian use 0-12
   // For times west of the Prime Meridian add 12 to the offset.
   // Ex. American/Denver GMT would be -6. 6 + 12 = 18
   // See https://en.wikipedia.org/wiki/Time_zone for a list of the GMT/UTC timezone offsets
-  
+
   config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
-  config.time.gmt_offset = 18; //cst time zone
+  config.time.gmt_offset = 18; // cst time zone
   config.time.day_light_offset = 0;
 
   // Declare the message class
