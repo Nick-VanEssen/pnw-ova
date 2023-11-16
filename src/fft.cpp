@@ -4,6 +4,13 @@
 using namespace std;
 using namespace std::chrono;
 
+arduinoFFT FFT = arduinoFFT();
+
+const double samplingFrequency = 3600;
+const uint16_t samples = 2048;
+double vReal[samples];
+double vImag[samples];
+
 void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
