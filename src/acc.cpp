@@ -1,12 +1,13 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_ADXL345_U.h>
-  
+#include <acc.h>
+
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
  
-void setup() {
+void setupAcc() {
  
   Serial.begin(115200);
   Serial.println("");
@@ -15,7 +16,7 @@ void setup() {
  
 }
  
-void loop() {
+void loopAcc() {
  Serial.println("");
   /*Read from ADXL345 accelerometer*/
   sensors_event_t event; 
