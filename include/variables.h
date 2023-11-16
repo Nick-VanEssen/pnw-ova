@@ -15,5 +15,5 @@ public:
     String getHardware();
     String setHardware(String Hardware);
     String getEmail();
-    String setHardware(String Email);
+    String setEmail(String Email);
 };

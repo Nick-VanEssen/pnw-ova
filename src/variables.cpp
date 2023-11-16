@@ -26,7 +26,7 @@ String getEmail()
 {
     return var.email;
 }
-String setHardware(String Email)
+String setEmail(String Email)
 {
     var.email = Email;
 }
