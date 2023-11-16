@@ -54,12 +54,12 @@ void setup()
 void emailNotification();
 
 // set variable outside loop so it doesn't get set to false every loop
-bool _mailSent = false;
+
 
 void loop()
 {
   digitalWrite(ledPin, ledState);
-
+  static bool _mailSent = false;
   // commented out to clean terminal output
   // loopPDM();
   if (!_mailSent)
