@@ -141,3 +141,13 @@ void PDM::printMemoryUsage()
   Serial.printf("PDM LED FREE STACK: %d \n", uxTaskGetStackHighWaterMark(PDMDebug));
 #endif
 }
+
+void PDM::stop()
+{
+  Serial.println("Stopping PDM Task");
+  if (PDMTask != NULL)
+  {
+    vTaskDelete(PDMTask);
+    PDMTask = NULL;
+  }
+}
