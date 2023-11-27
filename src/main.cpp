@@ -64,7 +64,8 @@ void loop()
   // loopPDM();
   if (!_mailSent)
   {
-    mailResults.send();
+    // commented out so it doesn't send an email every time
+    // mailResults.send();
     _mailSent = true;
   }
   wm.process();
