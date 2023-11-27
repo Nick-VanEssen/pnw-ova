@@ -57,11 +57,12 @@ void setup()
   // }
   // Serial.println("Connection Successful!");
   startTime();
+  accLoop();
 }
 
 void loop()
 {
-  accLoop();
+  // accLoop();
   digitalWrite(ledPin, ledState);
 }
 

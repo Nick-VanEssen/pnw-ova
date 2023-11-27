@@ -10,7 +10,7 @@
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 double arr[2048][2];
 // test
-double arr2[8192];
+double arr2[2048];
 int i = 0;
 
 void accSetup() {
@@ -33,15 +33,12 @@ void store(double xval, double yval, double zval, long time) {
 
     // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
     double val = xval + yval + zval;
-    arr[i][0] = val;
-    arr[i][1] = time;
     arr2[i] = val;
-    //fft(arr, time);
     fft(arr2);
 }
 
 void accLoop() {
-  for(i = 0; i <8192; i++) {
+  for(i = 0; i <2048; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
     sensors_event_t event;
