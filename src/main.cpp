@@ -67,7 +67,7 @@ void loop()
 
   if (!_mailSent)
   {
-    mailResults.send();
+    // mailResults.send();
     _mailSent = true;
   }
   wm.process();
