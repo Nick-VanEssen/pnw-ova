@@ -67,6 +67,7 @@ void loop()
 
   if (!_mailSent)
   {
+    // commented out so it doesn't send an email every time
     // mailResults.send();
     _mailSent = true;
   }
