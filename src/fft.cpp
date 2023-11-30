@@ -16,12 +16,15 @@ double vImag[samples];
 double fftSave[2][samples];
 
 void fftPrint(double arr[2][samples]) {
+   Serial.print("Freq: ");
    for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[0][i]);
+      Serial.print(arr[0][i]); Serial.print(" ");
    }
-   Serial.println("");
+   Serial.println(" ");
+   Serial.println(" ");
+   Serial.print("Mag: ");
    for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[1][i]);
+      Serial.print(arr[1][i]); Serial.print(" ");
    }
 }
 
