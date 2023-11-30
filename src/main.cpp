@@ -6,10 +6,18 @@
 #include "pdm_mic.h"
 #include "email.h"
 #include "settings.h"
+#include "aWOT.h"
 
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
+
+WiFiServer server(80);
+Application app;
+void index(Request &req, Response &res)
+{
+  res.print("Hello World!");
+}
 
 String processor(const String &var)
 {
@@ -51,12 +59,13 @@ void setup()
     Serial.println("Failed to connect"); // print results
   }
   Serial.println("Connection Successful!");
+  app.get("/", &index);
+  server.begin();
+
   pdm.setup();
 }
 
 void emailNotification();
-
-// set variable outside loop so it doesn't get set to false every loop
 
 void loop()
 {
@@ -72,7 +81,11 @@ void loop()
     _mailSent = true;
   }
   wm.process();
-
+  WiFiClient client = server.available();
+  if (client.connected())
+  {
+    app.process(&client);
+  }
   // Memory debug data
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
