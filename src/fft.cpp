@@ -1,8 +1,11 @@
 #include <chrono>
 #include <map>
 #include <fft.h>
+#include <algorithm>
+#include <iterator>
 using namespace std;
 using namespace std::chrono;
+
 
 arduinoFFT FFT = arduinoFFT();
 
@@ -10,6 +13,17 @@ const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
 double vReal[samples];
 double vImag[samples];
+double fftSave[2][samples];
+
+void fftPrint(double arr[2][samples]) {
+   for (int i = 0; i < samples ; i++) {
+      Serial.print(arr[0][i]);
+   }
+   Serial.println("");
+   for (int i = 0; i < samples ; i++) {
+      Serial.print(arr[1][i]);
+   }
+}
 
 void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
 {
@@ -29,11 +43,10 @@ void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
          abscissa = ((i * 1.0 * samplingFrequency) / samples);
       break;
    }
-   Serial.print(abscissa, 6);
-   if(scaleType==SCL_FREQUENCY)
-      Serial.print("Hz");
-      Serial.print(" ");
-      Serial.println(vData[i], 4);
+
+   if(scaleType==SCL_FREQUENCY) {
+      fftSave[0][i] = abscissa;
+   }
    }
    Serial.println();
 }
@@ -45,8 +58,7 @@ void fft(double vReal[2048]) {
    FFT.Compute(vReal, vImag, samples, FFT_FORWARD); //Compute FFT
    FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
 
-   Serial.println("Computed magnitudes:");
+   std::copy(vReal, vReal+2048, fftSave[1]);
    PrintVector(vReal, (samples >> 1), SCL_FREQUENCY);
-   double x = FFT.MajorPeak(vReal, samples, samplingFrequency);
-   Serial.println(x, 6);
+   fftPrint(fftSave);
 }
