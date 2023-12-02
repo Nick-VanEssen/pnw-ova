@@ -6,6 +6,10 @@
 #include "pdm_mic.h"
 #include "email.h"
 #include "settings.h"
+#include <acc.h>
+
+bool ledState = 0;
+const int ledPin = 2;
 
 DNSServer dnsServer;
 WiFiManager wm;
@@ -51,6 +55,7 @@ void setup()
     Serial.println("Failed to connect"); // print results
   }
   Serial.println("Connection Successful!");
+  setupAcc();
   pdm.setup();
 }
 
@@ -81,4 +86,7 @@ void loop()
     Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
     pdm.printMemoryUsage();
   }
+  loopAcc();
+  digitalWrite(ledPin, ledState);
 }
+
