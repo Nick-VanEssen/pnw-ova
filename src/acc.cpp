@@ -13,10 +13,9 @@ double arr[2048][2];
 double arr2[2048];
 int i = 0;
 
-void accSetup() {
-  Serial.println("");
-  Serial.println("Small example to read from ADXL345 accelerometer");
-  
+ACC acc;
+
+void ACC::Setup() {  
   accel.begin();
   accLoop();
 }
@@ -37,7 +36,7 @@ void store(double xval, double yval, double zval, long time) {
     fft(arr2);
 }
 
-void accLoop() {
+void ACC:loop() {
   for(i = 0; i <2048; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
