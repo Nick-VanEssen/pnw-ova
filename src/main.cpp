@@ -7,9 +7,11 @@
 #include "email.h"
 #include "settings.h"
 #include <acc.h>
+#include <main.h>
 
 bool ledState = 0;
 const int ledPin = 2;
+high_resolution_clock::time_point start;
 
 DNSServer dnsServer;
 WiFiManager wm;
@@ -30,6 +32,15 @@ String processor(const String &var)
      }
    }*/
   return String();
+}
+
+
+void startTime() {
+  start = high_resolution_clock::now();
+}
+
+high_resolution_clock::time_point getStartTime() {
+  return start;
 }
 
 void setup()
@@ -55,8 +66,10 @@ void setup()
     Serial.println("Failed to connect"); // print results
   }
   Serial.println("Connection Successful!");
-  setupAcc();
   pdm.setup();
+  accSetup();
+  startTime();
+
 }
 
 void emailNotification();
@@ -86,7 +99,7 @@ void loop()
     Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
     pdm.printMemoryUsage();
   }
-  loopAcc();
+  accLoop();
   digitalWrite(ledPin, ledState);
 }
 
