@@ -24,7 +24,7 @@ void fftPrint(double arr[2][samples]) {
    Serial.println(" ");
    Serial.print("Mag: ");
    for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[1][i]); Serial.print(" ");
+      Serial.print(arr[1][i]/samples); Serial.print(" ");
    }
 }
 
@@ -62,6 +62,6 @@ void fft(double vReal[2048]) {
    FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
 
    std::copy(vReal, vReal+2048, fftSave[1]);
-   PrintVector(vReal, (samples >> 1), SCL_FREQUENCY);
+   PrintVector(vReal, samples, SCL_FREQUENCY);
    fftPrint(fftSave);
 }
