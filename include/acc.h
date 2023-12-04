@@ -7,8 +7,9 @@ private:
 
 public:
     void setup();
-    static void ACCloop();
-    // void printMemoryUsage();
+    void stop();
+    static void IRAM_ATTR ACCloop(void *pvParameters);
+    void printMemoryUsage();
 };
 
 extern ACC acc;

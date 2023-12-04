@@ -8,6 +8,7 @@
 #include "settings.h"
 #include <acc.h>
 #include <main.h>
+#include <FFT.h>
 
 bool ledState = 0;
 const int ledPin = 2;
@@ -50,22 +51,24 @@ void setup()
   LittleFS.begin();
 
   // configure LED PWM functionalitites
-  ledcSetup(LED_CHANNEL, 5000, 8);
 
-  // attach the channel to the GPIO to be controlled
-  // to drive the LED, just set a value from 0-255
-  // using ledcWrite(LED_CHANNEL, Brightness)
-  ledcAttachPin(LED_PIN, LED_CHANNEL);
+  // ledcSetup(LED_CHANNEL, 5000, 8);
 
-  // WiFi Manager
-  bool res;
-  wm.setConfigPortalBlocking(false);                  // don't wait for user wifi setup
-  res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
-  if (!res)
-  {
-    Serial.println("Failed to connect"); // print results
-  }
-  Serial.println("Connection Successful!");
+  // // attach the channel to the GPIO to be controlled
+  // // to drive the LED, just set a value from 0-255
+  // // using ledcWrite(LED_CHANNEL, Brightness)
+  // ledcAttachPin(LED_PIN, LED_CHANNEL);
+
+  // // WiFi Manager
+  // bool res;
+  // wm.setConfigPortalBlocking(false);                  // don't wait for user wifi setup
+  // res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
+  // if (!res)
+  // {
+  //   Serial.println("Failed to connect"); // print results
+  // }
+  // Serial.println("Connection Successful!");
+  
   pdm.setup();
   acc.setup();
   startTime();
@@ -100,5 +103,8 @@ void loop()
     pdm.printMemoryUsage();
   }
   digitalWrite(ledPin, ledState);
+  if(fft.stopFlag == true) {
+    fft.stop();
+  }
 }
 

@@ -3,32 +3,47 @@
 #include <fft.h>
 #include <algorithm>
 #include <iterator>
+#include <settings.h>
 using namespace std;
 using namespace std::chrono;
 
 
-arduinoFFT FFT = arduinoFFT();
+TaskHandle_t FFTTask;
+FFT fft;
+arduinoFFT FFTfunc;
 
 const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
 double vReal[samples];
 double vImag[samples];
-double fftSave[2][samples];
+double freq[samples];
 
-void fftPrint(double arr[2][samples]) {
+void FFT::setup() {  
+   xTaskCreatePinnedToCore(calc,           /* Task function. */
+                          "FFTTask",         /* name of task. */
+                          FFT_STACK_SIZE,    /* Stack size of task*/
+                          NULL,              /* parameter of the task */
+                          FFT_TASK_PRIORITY, /* priority of             /* priority of the task*/
+                          &FFTTask,          /* Task handle to keep track of created task */
+                          FFT_TASK_CORE);    /* pin task to core 0 */
+  Serial.printf("FFT task started");
+  stopFlag = false;
+}
+
+void fftPrint() {
    Serial.print("Freq: ");
-   for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[0][i]); Serial.print(" ");
+   for (int i = 0; i < samples/2 ; i++) {
+      Serial.print(freq[i]); Serial.print(" ");
    }
    Serial.println(" ");
    Serial.println(" ");
    Serial.print("Mag: ");
-   for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[1][i]/samples); Serial.print(" ");
+   for (int i = 0; i < samples/2 ; i++) {
+      Serial.print(fft.vReal[i]/samples); Serial.print(" ");
    }
 }
 
-void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
+void logFreq(double *vData, uint16_t bufferSize, uint8_t scaleType)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
    {
@@ -48,7 +63,7 @@ void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
    }
 
    if(scaleType==SCL_FREQUENCY) {
-      fftSave[0][i] = abscissa;
+      freq[i] = abscissa;
    }
    }
    Serial.println();
@@ -56,12 +71,26 @@ void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
-void fft(double vReal[2048]) {
-   FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-   FFT.Compute(vReal, vImag, samples, FFT_FORWARD); //Compute FFT
-   FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
+void calc(void *pvParameters) {
+   FFTfunc = arduinoFFT(vReal, vImag, samples, samplingFrequency); /* Create FFT object */
+   FFTfunc.Compute(FFT_FORWARD); //Compute FFT
+   FFTfunc.ComplexToMagnitude(); // Compute magnitudes
 
-   std::copy(vReal, vReal+2048, fftSave[1]);
-   PrintVector(vReal, samples, SCL_FREQUENCY);
-   fftPrint(fftSave);
+   logFreq(vReal, samples/2, SCL_FREQUENCY);
+   fftPrint();
+   fft.stopFlag = true;
+   while(true) {
+      vTaskDelay(100);
+   }
+}
+
+
+void FFT::stop()
+{
+  Serial.println("Stopping FFT Task");
+  if (FFTTask != NULL)
+  {
+    vTaskDelete(FFTTask);
+    FFTTask = NULL;
+  }
 }

@@ -26,26 +26,26 @@ void ACC::setup() {
                           &ACCTask,          /* Task handle to keep track of created task */
                           ACC_TASK_CORE);    /* pin task to core 0 */
   Serial.printf("ACC task started");
-
 }
 
 void store(double xval, double yval, double zval, long time) {
     // CREATE MAP AND STORE ACCELEROMETER VALUES        
-    std::map<long, double> xmap;
-    std::map<long, double> ymap;
-    std::map<long, double> zmap;
+    // std::map<long, double> xmap;
+    // std::map<long, double> ymap;
+    // std::map<long, double> zmap;
 
-    xmap.insert(pair<long, double>(time, xval));
-    ymap.insert(pair<long, double>(time, yval));
-    zmap.insert(pair<long, double>(time, zval));
+    // xmap.insert(pair<long, double>(time, xval));
+    // ymap.insert(pair<long, double>(time, yval));
+    // zmap.insert(pair<long, double>(time, zval));
 
     // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
     double val = xval + yval + zval;
     arr2[i] = val;
-    fft(arr2);
+    std::copy(arr2, arr2+2048, fft.vReal);
+    fft.setup();
 }
 
-void ACC::ACCloop() {
+void ACC::ACCloop(void *pvParameters) {
   for(i = 0; i <2048; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/
@@ -68,5 +68,20 @@ void ACC::ACCloop() {
 
    /*Take a 0.3125 ms break*/
     delay(0.3125);
+  }
+}
+
+void ACC::printMemoryUsage()
+{
+  Serial.printf("ACC FREE STACK: %d \n", uxTaskGetStackHighWaterMark(ACCTask));
+}
+
+void ACC::stop()
+{
+  Serial.println("Stopping ACC Task");
+  if (ACCTask != NULL)
+  {
+    vTaskDelete(ACCTask);
+    ACCTask = NULL;
   }
 }
