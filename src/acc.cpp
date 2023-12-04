@@ -5,19 +5,28 @@
 #include <acc.h>
 #include <main.h>
 #include <fft.h>
+#include <settings.h>
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
-double arr[2048][2];
-// test
 double arr2[2048];
 int i = 0;
+TaskHandle_t ACCTask;
 
 ACC acc;
 
-void ACC::Setup() {  
+void ACC::setup() {  
   accel.begin();
-  accLoop();
+
+  xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
+                          "ACCTask",         /* name of task. */
+                          ACC_STACK_SIZE,    /* Stack size of task*/
+                          NULL,              /* parameter of the task */
+                          ACC_TASK_PRIORITY, /* priority of             /* priority of the task*/
+                          &ACCTask,          /* Task handle to keep track of created task */
+                          ACC_TASK_CORE);    /* pin task to core 0 */
+  Serial.printf("ACC task started");
+
 }
 
 void store(double xval, double yval, double zval, long time) {
@@ -36,7 +45,7 @@ void store(double xval, double yval, double zval, long time) {
     fft(arr2);
 }
 
-void ACC:loop() {
+void ACC::ACCloop() {
   for(i = 0; i <2048; i++) {
     Serial.println("");
     /*Read from ADXL345 accelerometer*/

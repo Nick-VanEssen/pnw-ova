@@ -67,7 +67,7 @@ void setup()
   }
   Serial.println("Connection Successful!");
   pdm.setup();
-  accSetup();
+  acc.setup();
   startTime();
 
 }
@@ -99,7 +99,6 @@ void loop()
     Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
     pdm.printMemoryUsage();
   }
-  accLoop();
   digitalWrite(ledPin, ledState);
 }
 

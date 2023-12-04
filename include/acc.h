@@ -4,13 +4,10 @@
 class ACC
 {
 private:
-    void i2s_setPin();
-    void i2s_install();
-    static void IRAM_ATTR PDMloop(void *pvParameters);
-    
+
 public:
     void setup();
-    void loop();
+    static void ACCloop();
     // void printMemoryUsage();
 };
 

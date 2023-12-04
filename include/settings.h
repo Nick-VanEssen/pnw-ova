@@ -43,3 +43,13 @@
 #define PDM_DEBUG_TASK_PRIORITY 3
 #define PDM_DEBUG_TASK_CORE 1
 //#####################################################//
+
+////////////////////////PDM MIC SETTINGS/////////////////
+#define ACC_BUFFER_LEN 200
+#define ACC_TASK_DELAY 100
+#define ACC_SAMPLE_RATE 3600
+// Task defines
+#define ACC_STACK_SIZE 1000
+#define ACC_TASK_PRIORITY 10
+#define ACC_TASK_CORE 2
+//#####################################################//
