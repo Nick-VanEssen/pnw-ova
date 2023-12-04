@@ -49,7 +49,7 @@
 #define ACC_TASK_DELAY 100
 #define ACC_SAMPLE_RATE 3600
 // Task defines
-#define ACC_STACK_SIZE 1000
+#define ACC_STACK_SIZE 1200
 #define ACC_TASK_PRIORITY 10
 #define ACC_TASK_CORE 1
 //#####################################################//
@@ -58,7 +58,7 @@
 #define FFT_BUFFER_LEN 200
 #define FFT_TASK_DELAY 100
 // Task defines
-#define FFT_STACK_SIZE 1000
+#define FFT_STACK_SIZE 1200
 #define FFT_TASK_PRIORITY 10
 #define FFT_TASK_CORE 1
 //#####################################################//

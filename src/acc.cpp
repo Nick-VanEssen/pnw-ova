@@ -9,7 +9,7 @@
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
-double arr2[2048];
+double *arr = nullptr;
 int i = 0;
 TaskHandle_t ACCTask;
 
@@ -17,7 +17,7 @@ ACC acc;
 
 void ACC::setup() {  
   accel.begin();
-
+  arr = new double[2048];
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
                           ACC_STACK_SIZE,    /* Stack size of task*/
@@ -40,8 +40,8 @@ void store(double xval, double yval, double zval, long time) {
 
     // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
     double val = xval + yval + zval;
-    arr2[i] = val;
-    std::copy(arr2, arr2+2048, fft.vReal);
+    arr[i] = val;
+    std::copy(arr, arr+2048, fft.vReal);
     fft.setup();
 }
 
