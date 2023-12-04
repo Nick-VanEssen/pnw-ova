@@ -6,18 +6,13 @@
 #include "pdm_mic.h"
 #include "email.h"
 #include "settings.h"
-#include "aWOT.h"
+#include "ESPAsyncWebServer.h"
 
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
 
-WiFiServer server(80);
-Application app;
-void index(Request &req, Response &res)
-{
-  res.print("Hello World!");
-}
+AsyncWebServer server(80);
 
 String processor(const String &var)
 {
@@ -56,10 +51,16 @@ void setup()
   res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
   if (!res)
   {
-    Serial.println("Failed to connect"); // print results
+    Serial.println("Failed to connect");
   }
-  Serial.println("Connection Successful!");
-  app.get("/", &index);
+  else
+  {
+    Serial.println("Connection Successful!");
+  }
+
+LittleFS.begin();
+  server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
   server.begin();
 
   pdm.setup();
@@ -81,11 +82,7 @@ void loop()
     _mailSent = true;
   }
   wm.process();
-  WiFiClient client = server.available();
-  if (client.connected())
-  {
-    app.process(&client);
-  }
+
   // Memory debug data
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
