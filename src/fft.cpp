@@ -10,7 +10,7 @@ using namespace std::chrono;
 
 // http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
-arduinoFFT FFTfunc;
+arduinoFFT FFTfunc = arduinoFFT();
 
 const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
@@ -29,6 +29,9 @@ void fftPrint() {
    for (int i = 0; i < samples/2 ; i++) {
       Serial.print(mag[i]); Serial.print(" ");
    }
+   std::fill_n(freq, samples/2, 0);
+   std::fill_n(mag, samples/2, 0);
+   std::fill_n(vImag, samples, 0);
 }
 
 void logFreq(double vData[2048], uint16_t bufferSize)
@@ -47,9 +50,9 @@ void calc(double vReal[2048]) {
    duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
    Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be inerval of .6 seconds
 
-   FFTfunc = arduinoFFT(vReal, vImag, samples, samplingFrequency); /* Create FFT object */
-   FFTfunc.Compute(FFT_FORWARD); //Compute FFT
-   FFTfunc.ComplexToMagnitude(); // Compute magnitudes
+   FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+   FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); //Compute FFT
+   FFTfunc.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
 
    logFreq(vReal,samples/2);
    fftPrint();
