@@ -9,7 +9,7 @@
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
-double *arr = nullptr;
+double arr[2048];
 int i = 0;
 TaskHandle_t ACCTask;
 
@@ -17,7 +17,6 @@ ACC acc;
 
 void ACC::setup() {  
   accel.begin();
-  arr = new double[2048];
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
                           ACC_STACK_SIZE,    /* Stack size of task*/
