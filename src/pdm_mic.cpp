@@ -17,8 +17,6 @@ void PDM::setup()
   i2s_install();
   i2s_setPin();
   i2s_start(I2S_PORT);
-  //ledcSetup(uint8_t chan, uint32_t freq, uint8_t bit_num)
-  ledcSetup(LED_CHANNEL, LED_FREQ, LEDC_TIMER_12_BIT);
   xTaskCreatePinnedToCore(PDMloop,           /* Task function. */
                           "PDMTask",         /* name of task. */
                           PDM_STACK_SIZE,    /* Stack size of task*/

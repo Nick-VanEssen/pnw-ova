@@ -51,13 +51,12 @@ void setup()
   LittleFS.begin();
 
   // configure LED PWM functionalitites
-
-  // ledcSetup(LED_CHANNEL, 5000, 8);
+  ledcSetup(LED_CHANNEL, 5000, 8);
 
   // // attach the channel to the GPIO to be controlled
   // // to drive the LED, just set a value from 0-255
   // // using ledcWrite(LED_CHANNEL, Brightness)
-  // ledcAttachPin(LED_PIN, LED_CHANNEL);
+  ledcAttachPin(LED_PIN, LED_CHANNEL);
 
   // // WiFi Manager
   // bool res;

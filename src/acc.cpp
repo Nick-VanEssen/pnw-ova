@@ -12,11 +12,13 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 double arr[2048];
 int i = 0;
 TaskHandle_t ACCTask;
+bool flag1;
 
 ACC acc;
 
 void ACC::setup() {  
   accel.begin();
+  memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
                           ACC_STACK_SIZE,    /* Stack size of task*/
@@ -51,7 +53,7 @@ void ACC::ACCloop(void *pvParameters) {
    /*Take a 0.3125 ms break*/
     delay(0.3125);
   }
-  calc(arr);
+  calc((double * ) arr);
 }
 
 void ACC::printMemoryUsage()
