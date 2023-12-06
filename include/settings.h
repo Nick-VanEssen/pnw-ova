@@ -23,6 +23,8 @@
 #define DEBUG_PDM_LED true
 #define PDM_DEBUG_RANGE_LIMIT 1000
 #define LED_CHANNEL 0
+#define LED_FREQ 5000
+#define LEDC_TIMER_12_BIT  12
 #define PDM_LED_DELAY 5
 //Pins
 #define I2S_WS 26
@@ -39,7 +41,7 @@
 #define PDM_TASK_PRIORITY 10
 #define PDM_TASK_CORE 0
 // Debug Task Defines
-#define PDM_DEBUG_STACK_SIZE 800
+#define PDM_DEBUG_STACK_SIZE 1000
 #define PDM_DEBUG_TASK_PRIORITY 3
 #define PDM_DEBUG_TASK_CORE 0
 //#####################################################//
@@ -49,7 +51,7 @@
 #define ACC_TASK_DELAY 100
 #define ACC_SAMPLE_RATE 3600
 // Task defines
-#define ACC_STACK_SIZE 1200
+#define ACC_STACK_SIZE 2400
 #define ACC_TASK_PRIORITY 10
 #define ACC_TASK_CORE 1
 //#####################################################//

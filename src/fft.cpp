@@ -14,8 +14,9 @@ arduinoFFT FFTfunc;
 
 const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
-double *vImag = nullptr;
-double *freq = nullptr;
+double vImag[samples];
+double freq[samples/2];
+double mag[samples/2];
 
 void fftPrint() {
    Serial.print("Freq: ");
@@ -26,15 +27,16 @@ void fftPrint() {
    Serial.println(" ");
    Serial.print("Mag: ");
    for (int i = 0; i < samples/2 ; i++) {
-      Serial.print(vReal[i]/samples); Serial.print(" ");
+      Serial.print(mag[i]); Serial.print(" ");
    }
 }
 
-void logFreq(uint16_t bufferSize)
+void logFreq(double vData[2048], uint16_t bufferSize)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
       {
          freq[i] = ((i * 1.0 * samplingFrequency) / samples);
+         mag[i] = vData[i];
       }
 }
 
@@ -49,6 +51,6 @@ void calc(double vReal[2048]) {
    FFTfunc.Compute(FFT_FORWARD); //Compute FFT
    FFTfunc.ComplexToMagnitude(); // Compute magnitudes
 
-   logFreq(samples/2);
+   logFreq(vReal,samples/2);
    fftPrint();
 }
