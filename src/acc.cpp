@@ -28,26 +28,8 @@ void ACC::setup() {
   Serial.printf("ACC task started");
 }
 
-void store(double xval, double yval, double zval, long time) {
-    // CREATE MAP AND STORE ACCELEROMETER VALUES        
-    // std::map<long, double> xmap;
-    // std::map<long, double> ymap;
-    // std::map<long, double> zmap;
-
-    // xmap.insert(pair<long, double>(time, xval));
-    // ymap.insert(pair<long, double>(time, yval));
-    // zmap.insert(pair<long, double>(time, zval));
-
-    // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
-    double val = xval + yval + zval;
-    arr[i] = val;
-    std::copy(arr, arr+2048, fft.vReal);
-    fft.setup();
-}
-
 void ACC::ACCloop(void *pvParameters) {
   for(i = 0; i <2048; i++) {
-    Serial.println("");
     /*Read from ADXL345 accelerometer*/
     sensors_event_t event;
     accel.getEvent(&event);
@@ -56,19 +38,21 @@ void ACC::ACCloop(void *pvParameters) {
     double zval = (event.acceleration.z)-9.81; //will need to change what variable is affected by gravity depending on board orientation
 
     // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
-    // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");
+    // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
     // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
     
-    auto stop = high_resolution_clock::now();
-  
-    duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
-    auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
+    // auto stop = high_resolution_clock::now();
+    // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());           // Block is used to print time data taken
+    // auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
     // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
-    store(xval,yval,zval, milliseconds.count());
 
+    double val = xval + yval + zval;
+    arr[i] = val;
+    val = 0;
    /*Take a 0.3125 ms break*/
     delay(0.3125);
   }
+  calc(arr);
 }
 
 void ACC::printMemoryUsage()

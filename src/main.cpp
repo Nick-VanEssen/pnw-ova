@@ -101,10 +101,8 @@ void loop()
     Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
     Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
     pdm.printMemoryUsage();
+    acc.printMemoryUsage();
   }
   digitalWrite(ledPin, ledState);
-  if(fft.stopFlag == true) {
-    fft.stop();
-  }
 }
 

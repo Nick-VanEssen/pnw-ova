@@ -4,32 +4,18 @@
 #include <algorithm>
 #include <iterator>
 #include <settings.h>
+#include <main.h>
 using namespace std;
 using namespace std::chrono;
 
+// http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
-TaskHandle_t FFTTask;
-FFT fft;
 arduinoFFT FFTfunc;
 
 const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
 double *vImag = nullptr;
 double *freq = nullptr;
-
-void FFT::setup() {  
-   vImag = new double[samples];
-   freq = new double[samples];
-   xTaskCreatePinnedToCore(calc,           /* Task function. */
-                          "FFTTask",         /* name of task. */
-                          FFT_STACK_SIZE,    /* Stack size of task*/
-                          NULL,              /* parameter of the task */
-                          FFT_TASK_PRIORITY, /* priority of             /* priority of the task*/
-                          &FFTTask,          /* Task handle to keep track of created task */
-                          FFT_TASK_CORE);    /* pin task to core 0 */
-  Serial.printf("FFT task started");
-  stopFlag = false;
-}
 
 void fftPrint() {
    Serial.print("Freq: ");
@@ -40,58 +26,29 @@ void fftPrint() {
    Serial.println(" ");
    Serial.print("Mag: ");
    for (int i = 0; i < samples/2 ; i++) {
-      Serial.print(fft.vReal[i]/samples); Serial.print(" ");
+      Serial.print(vReal[i]/samples); Serial.print(" ");
    }
 }
 
-void logFreq(double *vData, uint16_t bufferSize, uint8_t scaleType)
+void logFreq(uint16_t bufferSize)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
-   {
-      double abscissa;
-      /* Print abscissa value */
-      switch (scaleType)
       {
-         case SCL_INDEX:
-         abscissa = (i * 1.0);
-      break;
-      case SCL_TIME:
-         abscissa = ((i * 1.0) / samplingFrequency);
-      break;
-      case SCL_FREQUENCY:
-         abscissa = ((i * 1.0 * samplingFrequency) / samples);
-      break;
-   }
-
-   if(scaleType==SCL_FREQUENCY) {
-      freq[i] = abscissa;
-   }
-   }
-   Serial.println();
+         freq[i] = ((i * 1.0 * samplingFrequency) / samples);
+      }
 }
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
-void calc(void *pvParameters) {
-   FFTfunc = arduinoFFT(fft.vReal, vImag, samples, samplingFrequency); /* Create FFT object */
+void calc(double vReal[2048]) {
+   auto stop = high_resolution_clock::now();
+   duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
+   Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be inerval of .6 seconds
+
+   FFTfunc = arduinoFFT(vReal, vImag, samples, samplingFrequency); /* Create FFT object */
    FFTfunc.Compute(FFT_FORWARD); //Compute FFT
    FFTfunc.ComplexToMagnitude(); // Compute magnitudes
 
-   logFreq(fft.vReal, samples/2, SCL_FREQUENCY);
+   logFreq(samples/2);
    fftPrint();
-   fft.stopFlag = true;
-   while(true) {
-      vTaskDelay(100);
-   }
-}
-
-
-void FFT::stop()
-{
-  Serial.println("Stopping FFT Task");
-  if (FFTTask != NULL)
-  {
-    vTaskDelete(FFTTask);
-    FFTTask = NULL;
-  }
 }
