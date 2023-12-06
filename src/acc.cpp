@@ -31,10 +31,10 @@ void ACC::setup()
 
 void ACC::ACCloop(void *pvParameters)
 {
-  float val;
-  float xval;
-  float yval;
-  float zval;
+  double val;
+  double xval;
+  double yval;
+  double zval;
   double arr[2048];
   while (true)
   {
