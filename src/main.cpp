@@ -7,12 +7,16 @@
 #include "email.h"
 #include "settings.h"
 #include "ESPAsyncWebServer.h"
+#include "JSONVar.h"
+#include "JSON.h"
 
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
 
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+JSONVar readings;
 
 String processor(const String &var)
 {
@@ -30,6 +34,31 @@ String processor(const String &var)
    }*/
   return String();
 }
+
+// void sendFFTData() {
+//     FFTData fftData = getFFTData();
+
+//     JSONVar fftJson;
+//     fftJson["magnitude"] = fftData.magnitude;
+//     fftJson["frequency"] = fftData.frequency;
+    
+//     String jsonString = JSON.stringify(fftJson);
+//     ws.textAll(jsonString);
+// }
+
+// WebSocket event handler
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
+               AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    Serial.printf("WebSocket client #%u connected from %s\n", 
+                  client->id(), client->remoteIP().toString().c_str());
+  } else if (type == WS_EVT_DISCONNECT) {
+    Serial.printf("WebSocket client #%u disconnected\n", client->id());
+  } else if (type == WS_EVT_DATA) {
+    // Handle data received
+  }
+}
+
 
 void setup()
 {
@@ -64,6 +93,10 @@ LittleFS.begin();
   server.begin();
 
   pdm.setup();
+
+  ws.onEvent(onWsEvent);
+  server.addHandler(&ws);
+
 }
 
 void emailNotification();
