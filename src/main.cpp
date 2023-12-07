@@ -9,6 +9,13 @@
 #include "ESPAsyncWebServer.h"
 #include "JSONVar.h"
 #include "JSON.h"
+#include <acc.h>
+#include <main.h>
+#include <FFT.h>
+
+bool ledState = 0;
+const int ledPin = 2;
+high_resolution_clock::time_point start;
 
 DNSServer dnsServer;
 WiFiManager wm;
@@ -60,6 +67,14 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
 }
 
 
+void startTime() {
+  start = high_resolution_clock::now();
+}
+
+high_resolution_clock::time_point getStartTime() {
+  return start;
+}
+
 void setup()
 {
   // Serial port for debugging purposes
@@ -69,9 +84,9 @@ void setup()
   // configure LED PWM functionalitites
   ledcSetup(LED_CHANNEL, 5000, 8);
 
-  // attach the channel to the GPIO to be controlled
-  // to drive the LED, just set a value from 0-255
-  // using ledcWrite(LED_CHANNEL, Brightness)
+  // // attach the channel to the GPIO to be controlled
+  // // to drive the LED, just set a value from 0-255
+  // // using ledcWrite(LED_CHANNEL, Brightness)
   ledcAttachPin(LED_PIN, LED_CHANNEL);
 
   // WiFi Manager
@@ -96,6 +111,10 @@ LittleFS.begin();
 
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
+  
+  pdm.setup();
+  acc.setup();
+  startTime();
 
 }
 
@@ -123,5 +142,8 @@ void loop()
     Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
     Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
     pdm.printMemoryUsage();
+    acc.printMemoryUsage();
   }
+  digitalWrite(ledPin, ledState);
 }
+
