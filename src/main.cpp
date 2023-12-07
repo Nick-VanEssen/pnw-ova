@@ -42,16 +42,29 @@ String processor(const String &var)
   return String();
 }
 
-// void sendFFTData() {
-//     FFTData fftData = getFFTData();
+void sendFFTData() {
+    const size_t dataLength = 1024;
+    double frequencyData[dataLength];
+    double magnitudeData[dataLength];
 
-//     JSONVar fftJson;
-//     fftJson["magnitude"] = fftData.magnitude;
-//     fftJson["frequency"] = fftData.frequency;
-    
-//     String jsonString = JSON.stringify(fftJson);
-//     ws.textAll(jsonString);
-// }
+    getFrequencyData(frequencyData, dataLength);
+    getMagnitudeData(magnitudeData, dataLength);
+
+    JSONVar fftJson;
+    JSONVar freqArray;
+    JSONVar magArray;
+
+    for (size_t i = 0; i < dataLength; ++i) {
+        freqArray[i] = frequencyData[i];
+        magArray[i] = magnitudeData[i];
+    }
+
+    fftJson["frequency"] = freqArray;
+    fftJson["magnitude"] = magArray;
+
+    String jsonString = JSON.stringify(fftJson);
+    ws.textAll(jsonString);
+}
 
 // WebSocket event handler
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
