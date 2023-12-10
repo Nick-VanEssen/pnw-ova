@@ -66,3 +66,16 @@ void calc(double vReal[2048]) {
    logFreq(vReal,samples/2);
    fftPrint();
 }
+
+// Websocket functions
+void getFrequencyData(double* outArray, size_t length) {
+    for (size_t i = 0; i < length && i < samples/2; ++i) {
+        outArray[i] = freq[i];
+    }
+}
+
+void getMagnitudeData(double* outArray, size_t length) {
+    for (size_t i = 0; i < length && i < samples/2; ++i) {
+        outArray[i] = mag[i];
+    }
+}

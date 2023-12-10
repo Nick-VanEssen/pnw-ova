@@ -24,47 +24,71 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-      d3.csv("freq_amp.csv").then(makeChart);
+      // Set up WebSocket connection
+      var socket = new WebSocket("ws://10.0.0.239/ws");
+      var chart;
 
-      function makeChart(data) {
-        var data = data.map(function (d) {
-          return { x: parseFloat(d.frequency), y: parseFloat(d.amplitude) };
+      // WebSocket event listeners
+      socket.onopen = function (event) {
+        console.log("Connected to WebSocket");
+      };
+
+      socket.onmessage = function (event) {
+        // Parse the incoming data
+        var data = JSON.parse(event.data);
+        updateChart(data);
+      };
+
+      socket.onclose = function (event) {
+        console.log("WebSocket connection closed");
+      };
+
+      function updateChart(data) {
+        var chartData = data.map(function (d) {
+          return { x: d.frequency, y: d.magnitude };
         });
 
-        const ctx = document.getElementById("myChart");
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            datasets: [
-              {
-                label: "Frequency vs Amplitude",
-                data: data,
-                fill: false,
-                borderColor: "rgb(75, 192, 192)",
-                tension: 0.1,
-              },
-            ],
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Amplitude", // unit???
+        if (chart) {
+          // Update chart if it exists
+          chart.data.datasets[0].data = chartData;
+          chart.update();
+        } else {
+          // Create chart if it doesn't exist
+          const ctx = document.getElementById("myChart");
+          chart = new Chart(ctx, {
+            type: "line",
+            data: {
+              datasets: [
+                {
+                  label: "Frequency vs Magnitude",
+                  data: chartData,
+                  fill: false,
+                  borderColor: "rgb(75, 192, 192)",
+                  tension: 0.1,
                 },
-              },
-              x: {
-                type: "linear",
-                position: "bottom",
-                title: {
-                  display: true,
-                  text: "Frequency (Hz)",
+              ],
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: "Magnitude",
+                  },
+                },
+                x: {
+                  type: "linear",
+                  position: "bottom",
+                  title: {
+                    display: true,
+                    text: "Frequency (Hz)",
+                  },
                 },
               },
             },
-          },
-        });
+          });
+        }
       }
     </script>
   </body>

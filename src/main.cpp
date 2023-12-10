@@ -114,8 +114,7 @@ void setup()
   {
     Serial.println("Connection Successful!");
   }
-
-LittleFS.begin();
+  
   server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
 
   server.begin();
@@ -147,6 +146,13 @@ void loop()
     _mailSent = true;
   }
   wm.process();
+
+// Send fft data after 10 seconds
+static unsigned long lastFFTDataSendTime = 0;
+if (millis() - lastFFTDataSendTime > 10000) {
+    sendFFTData();
+    lastFFTDataSendTime = millis();
+}
 
   // Memory debug data
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
