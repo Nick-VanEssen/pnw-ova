@@ -4,7 +4,11 @@
 #define SERIAL_COM_SPEED 922190
 #define LED_PIN 2
 #define MAIN_LOOP_DELAY 10
+//Uncomment to display free stack in serial terminal
+//#define DEBUG_STACK 
+#ifdef DEBUG_STACK
 #define DEBUG_PRINT_INTERVAL 15000
+#endif
 //#####################################################//
 ////////////////////////EMAIL SETTINGS///////////////////
 // The smtp host name e.g. smtp.gmail.com for GMail or smtp.office365.com for Outlook or smtp.mail.yahoo.com
@@ -46,17 +50,19 @@
 #define PDM_DEBUG_TASK_CORE 0
 //#####################################################//
 
-////////////////////////ACC MIC SETTINGS/////////////////
+////////////////////////ACC SETTINGS/////////////////
 #define ACC_BUFFER_LEN 200
 #define ACC_TASK_DELAY 100
-#define ACC_SAMPLE_RATE 3600
+#define ACC_SAMPLE_FREQUENCY 3200 //hz 
+#define ACC_SAMPLE_DELAY (1/ACC_SAMPLE_FREQUENCY)*1000 //3200hz above equates to .3125 period. 
 // Task defines
 #define ACC_STACK_SIZE 1024*18
 #define ACC_TASK_PRIORITY 10
 #define ACC_TASK_CORE 1
+#define ACC_LOOP_DELAY 1000 //how many ms to delay between data collection cycles
 //#####################################################//
 
-////////////////////////FFT MIC SETTINGS/////////////////
+////////////////////////FFT SETTINGS/////////////////
 #define FFT_BUFFER_LEN 200
 #define FFT_TASK_DELAY 100
 // Task defines

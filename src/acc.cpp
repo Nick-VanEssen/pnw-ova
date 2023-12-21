@@ -49,7 +49,7 @@ void ACC::ACCloop(void *pvParameters)
 
       // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
       // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
-      // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
+     // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
 
       // auto stop = high_resolution_clock::now();
       // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());           // Block is used to print time data taken
@@ -57,12 +57,12 @@ void ACC::ACCloop(void *pvParameters)
       // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
 
       val = xval + yval + zval - SENSORS_GRAVITY_STANDARD;
-      arr[i] = (double)val;
+      arr[i] = zval;
       /*Take a 0.3125 ms break*/
-      delay(0.3125);
+      delay(ACC_SAMPLE_DELAY);
     }
     calc(arr);
-    vTaskDelay(1000);
+    vTaskDelay(ACC_LOOP_DELAY);
   }
 }
 

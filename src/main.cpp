@@ -155,6 +155,7 @@ if (millis() - lastFFTDataSendTime > 10000) {
 }
 
   // Memory debug data
+  #ifdef DEBUG_STACK
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
     intervalTimer = millis();
@@ -163,6 +164,7 @@ if (millis() - lastFFTDataSendTime > 10000) {
     pdm.printMemoryUsage();
     acc.printMemoryUsage();
   }
-  digitalWrite(ledPin, ledState);
+  #endif
+  
 }
 
