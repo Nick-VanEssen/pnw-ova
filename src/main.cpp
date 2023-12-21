@@ -94,6 +94,7 @@ void loop()
   wm.process();
 
   // Memory debug data
+  #ifdef DEBUG_STACK
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
     intervalTimer = millis();
@@ -102,6 +103,7 @@ void loop()
     pdm.printMemoryUsage();
     acc.printMemoryUsage();
   }
-  digitalWrite(ledPin, ledState);
+  #endif
+  
 }
 
