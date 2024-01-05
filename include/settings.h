@@ -37,7 +37,7 @@
 // Use I2S Processor 0
 #define I2S_PORT I2S_NUM_0
 // Define input buffer length
-#define PDM_BUFFER_LEN 200
+#define PDM_BUFFER_LEN 2048
 #define PDM_TASK_DELAY 100
 #define PDM_SAMPLE_RATE 16000
 // Task defines

@@ -61,7 +61,7 @@ void ACC::ACCloop(void *pvParameters)
       /*Take a 0.3125 ms break*/
       delay(ACC_SAMPLE_DELAY);
     }
-    calc(arr);
+    calc(arr, 3600.0);
     vTaskDelay(ACC_LOOP_DELAY);
   }
 }

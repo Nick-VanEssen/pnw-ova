@@ -12,7 +12,6 @@ using namespace std::chrono;
 
 arduinoFFT FFTfunc = arduinoFFT();
 
-const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
 double vImag[samples];
@@ -46,7 +45,7 @@ void fftPrint(double vReal[2048])
    std::fill_n(vReal, samples, 0);
 }
 
-void logFreq(double vData[2048], uint16_t bufferSize)
+void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
    {
@@ -57,7 +56,7 @@ void logFreq(double vData[2048], uint16_t bufferSize)
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
-void calc(double vReal[2048])
+void calc(double vReal[2048], double samplingFrequency)
 {
    // std::copy(vReal, vReal+2048, copiedArr);
    // auto stop = high_resolution_clock::now();
@@ -69,6 +68,6 @@ void calc(double vReal[2048])
    FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
    FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
 
-   logFreq(vReal, samples / 2);
+   logFreq(vReal, samples / 2, samplingFrequency);
    fftPrint(vReal);
 }
