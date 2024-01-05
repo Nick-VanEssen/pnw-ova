@@ -2,8 +2,10 @@
 // Include I2S driver
 #include <driver/i2s.h>
 #include "pdm_mic.h"
+#include "FFT.h"
 
 PDM pdm;
+double vReal[2048];
 
 int16_t sBuffer[PDM_BUFFER_LEN];
 TaskHandle_t PDMTask;
@@ -74,7 +76,12 @@ void PDM::PDMloop(void *pvParameters)
         // Average the data reading
         mean /= samples_read;
         pdm.oStream.setValue(mean);
-
+        for (int i = 0; i < 2048; i++)
+        {
+            vReal[i] = (double)sBuffer[i];
+        }
+        calc(vReal, PDM_SAMPLE_RATE);
+        
 #ifdef DEBUG_PDM_SERIAL
         // Print to serial plotter
         Serial.println(mean);
