@@ -5,60 +5,78 @@
 #include <acc.h>
 #include <main.h>
 #include <fft.h>
+#include <settings.h>
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
-double arr[2048][2];
-// test
-double arr2[2048];
 int i = 0;
+TaskHandle_t ACCTask;
+bool flag1;
 
-void accSetup() {
-  Serial.println("");
-  Serial.println("Small example to read from ADXL345 accelerometer");
-  
+ACC acc;
+
+void ACC::setup()
+{
   accel.begin();
-  accLoop();
+  // memset(arr, 0, sizeof(arr));
+  xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
+                          "ACCTask",         /* name of task. */
+                          ACC_STACK_SIZE,    /* Stack size of task*/
+                          NULL,              /* parameter of the task */
+                          ACC_TASK_PRIORITY, /* priority of             /* priority of the task*/
+                          &ACCTask,          /* Task handle to keep track of created task */
+                          ACC_TASK_CORE);    /* pin task to core 0 */
+  Serial.printf("ACC task started");
 }
 
-void store(double xval, double yval, double zval, long time) {
-    // CREATE MAP AND STORE ACCELEROMETER VALUES        
-    std::map<long, double> xmap;
-    std::map<long, double> ymap;
-    std::map<long, double> zmap;
+void ACC::ACCloop(void *pvParameters)
+{
+  double val;
+  double xval;
+  double yval;
+  double zval;
+  double arr[2048];
+  while (true)
+  {
+    for (i = 0; i < 2048; i++)
+    {
+      /*Read from ADXL345 accelerometer*/
+      sensors_event_t event;
+      accel.getEvent(&event);
+      xval = (event.acceleration.x);
+      yval = (event.acceleration.y);
+      zval = (event.acceleration.z); // will need to change what variable is affected by gravity depending on board orientation
 
-    xmap.insert(pair<long, double>(time, xval));
-    ymap.insert(pair<long, double>(time, yval));
-    zmap.insert(pair<long, double>(time, zval));
+      // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
+      // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
+     // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
 
-    // CREATE 2D ARRAY TO INPUT INTO FFT FUNCTION
-    double val = xval + yval + zval;
-    arr2[i] = val;
-    fft(arr2);
+      // auto stop = high_resolution_clock::now();
+      // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());           // Block is used to print time data taken
+      // auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
+      // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
+
+      val = xval + yval + zval - SENSORS_GRAVITY_STANDARD;
+      arr[i] = zval;
+      /*Take a 0.3125 ms break*/
+      delay(ACC_SAMPLE_DELAY);
+    }
+    calc(arr, 3600.0);
+    vTaskDelay(ACC_LOOP_DELAY);
+  }
 }
 
-void accLoop() {
-  for(i = 0; i <2048; i++) {
-    Serial.println("");
-    /*Read from ADXL345 accelerometer*/
-    sensors_event_t event;
-    accel.getEvent(&event);
-    double xval = (event.acceleration.x);
-    double yval = (event.acceleration.y);
-    double zval = (event.acceleration.z)-9.81; //will need to change what variable is affected by gravity depending on board orientation
+void ACC::printMemoryUsage()
+{
+  Serial.printf("ACC FREE STACK: %d \n", uxTaskGetStackHighWaterMark(ACCTask));
+}
 
-    // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
-    // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");
-    // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
-    
-    auto stop = high_resolution_clock::now();
-  
-    duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
-    auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
-    // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
-    store(xval,yval,zval, milliseconds.count());
-
-   /*Take a 0.3125 ms break*/
-    delay(0.3125);
+void ACC::stop()
+{
+  Serial.println("Stopping ACC Task");
+  if (ACCTask != NULL)
+  {
+    vTaskDelete(ACCTask);
+    ACCTask = NULL;
   }
 }

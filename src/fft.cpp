@@ -3,65 +3,71 @@
 #include <fft.h>
 #include <algorithm>
 #include <iterator>
+#include <settings.h>
+#include <main.h>
 using namespace std;
 using namespace std::chrono;
 
+// http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
-arduinoFFT FFT = arduinoFFT();
+arduinoFFT FFTfunc = arduinoFFT();
 
-const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
-double vReal[samples];
+// double copiedArr[samples];
 double vImag[samples];
-double fftSave[2][samples];
+double freq[samples / 2];
+double mag[samples / 2];
 
-void fftPrint(double arr[2][samples]) {
-   Serial.print("Freq: ");
-   for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[0][i]); Serial.print(" ");
+void fftPrint(double vReal[2048])
+{
+   Serial.println(" ");
+   // Serial.print("Freq: ");
+   // for (int i = 0; i < samples/2 ; i++) {
+   //    Serial.print(freq[i]); Serial.print(" ");
+   // }
+   Serial.print("Original: ");
+   for (int i = 0; i < samples; i++)
+   {
+      Serial.print(vReal[i]);
+      Serial.print(" ");
    }
    Serial.println(" ");
    Serial.println(" ");
    Serial.print("Mag: ");
-   for (int i = 0; i < samples ; i++) {
-      Serial.print(arr[1][i]/samples); Serial.print(" ");
+   for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(mag[i] / samples, 6);
+      Serial.print(" ");
    }
+   std::fill_n(freq, samples / 2, 0);
+   std::fill_n(mag, samples / 2, 0);
+   std::fill_n(vImag, samples, 0);
+   std::fill_n(vReal, samples, 0);
 }
 
-void PrintVector(double *vData, uint16_t bufferSize, uint8_t scaleType)
+void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
    {
-      double abscissa;
-      /* Print abscissa value */
-      switch (scaleType)
-      {
-         case SCL_INDEX:
-         abscissa = (i * 1.0);
-      break;
-      case SCL_TIME:
-         abscissa = ((i * 1.0) / samplingFrequency);
-      break;
-      case SCL_FREQUENCY:
-         abscissa = ((i * 1.0 * samplingFrequency) / samples);
-      break;
+      freq[i] = ((i * 1.0 * samplingFrequency) / samples);
+      mag[i] = vData[i];
    }
-
-   if(scaleType==SCL_FREQUENCY) {
-      fftSave[0][i] = abscissa;
-   }
-   }
-   Serial.println();
 }
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
-void fft(double vReal[2048]) {
-   FFT.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-   FFT.Compute(vReal, vImag, samples, FFT_FORWARD); //Compute FFT
-   FFT.ComplexToMagnitude(vReal, vImag, samples); // Compute magnitudes
+void calc(double vReal[2048], double samplingFrequency)
+{
+   // std::copy(vReal, vReal+2048, copiedArr);
+   // auto stop = high_resolution_clock::now();
+   // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
+   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be inerval of .6 seconds
 
-   std::copy(vReal, vReal+2048, fftSave[1]);
-   PrintVector(vReal, samples, SCL_FREQUENCY);
-   fftPrint(fftSave);
+   FFTfunc.DCRemoval(vReal, samples);
+   FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+   FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
+   FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
+
+   logFreq(vReal, samples / 2, samplingFrequency);
+   fftPrint(vReal);
 }
