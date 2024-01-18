@@ -5,6 +5,7 @@
 #include <iterator>
 #include <settings.h>
 #include <main.h>
+#include <algorithm>
 using namespace std;
 using namespace std::chrono;
 
@@ -54,6 +55,13 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
    }
 }
 
+void saveValues(double vData[2048], double samplingFrequency) {
+   if(samplingFrequency == 16000) {
+      std::copy(begin(vData), end(vData), begin(micData));
+   }
+   
+}
+
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
 void calc(double vReal[2048], double samplingFrequency)
@@ -70,4 +78,5 @@ void calc(double vReal[2048], double samplingFrequency)
 
    logFreq(vReal, samples / 2, samplingFrequency);
    fftPrint(vReal);
+
 }

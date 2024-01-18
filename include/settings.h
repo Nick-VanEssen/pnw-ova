@@ -70,3 +70,13 @@
 #define FFT_TASK_PRIORITY 10
 #define FFT_TASK_CORE 1
 //#####################################################//
+
+
+////////////////////////MON SETTINGS/////////////////
+#define MON_BUFFER_LEN 200
+#define MON_TASK_DELAY 100
+// Task defines
+#define MON_STACK_SIZE 5200
+#define MON_TASK_PRIORITY 10
+#define MON_TASK_CORE 1
+//#####################################################//
