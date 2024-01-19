@@ -1,11 +1,13 @@
 #include <chrono>
-#include <map>
+// #include <map>
 #include <fft.h>
 #include <algorithm>
 #include <iterator>
 #include <settings.h>
 #include <main.h>
+#include <global.h>
 #include <algorithm>
+#include <iostream>
 using namespace std;
 using namespace std::chrono;
 
@@ -57,7 +59,10 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void saveValues(double vData[2048], double samplingFrequency) {
    if(samplingFrequency == 16000) {
-      std::copy(begin(vData), end(vData), begin(micData));
+      std::copy(vData, vData+2048, micData);
+   }
+   else {
+      std::copy(vData, vData+2048, accData);
    }
    
 }

@@ -2,6 +2,7 @@
 // Include I2S driver
 #include <driver/i2s.h>
 #include "pdm_mic.h"
+#include <global.h>
 #include "FFT.h"
 
 PDM pdm;
@@ -44,7 +45,7 @@ void PDM::setup()
 
 void PDM::PDMloop(void *pvParameters)
 {
-  for (;;)
+  while (micFlag == false)
   {
 
 #ifdef DEBUG_PDM_SERIAL
@@ -81,7 +82,7 @@ void PDM::PDMloop(void *pvParameters)
             vReal[i] = (double)sBuffer[i];
         }
         calc(vReal, PDM_SAMPLE_RATE);
-        
+        micFlag = true;
 #ifdef DEBUG_PDM_SERIAL
         // Print to serial plotter
         Serial.println(mean);

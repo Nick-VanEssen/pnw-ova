@@ -1,5 +1,6 @@
 #include <monitor.h>
 #include <settings.h>
+#include <global.h>
 
 TaskHandle_t MONTask;
 MON mon;
@@ -18,5 +19,10 @@ void MON::setup()
 
 void MON::MONloop(void *pvParameters)
 {
+  // 1 or 2 monitoring tasks?
+  // check acc fft data
+  accFlag = true;
 
+  // check mic fft data
+  micFlag = true;
 }
