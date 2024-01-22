@@ -18,11 +18,15 @@ void MON::setup()
 }
 
 void MON::MONloop(void *pvParameters)
-{
-  // 1 or 2 monitoring tasks?
-  // check acc fft data
-  accFlag = true;
+{  
+  
+  while(accFlag = true) {
+    // monitor code
+    accFlag = false;
+  }
 
-  // check mic fft data
-  micFlag = true;
+  while(micFlag = true) {
+    // monitor code
+    micFlag = false;
+  }
 }

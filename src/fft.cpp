@@ -82,6 +82,6 @@ void calc(double vReal[2048], double samplingFrequency)
    FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
 
    logFreq(vReal, samples / 2, samplingFrequency);
-   fftPrint(vReal);
-
+   // fftPrint(vReal);
+   saveValues(vReal, samplingFrequency);
 }
