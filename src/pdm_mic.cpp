@@ -7,8 +7,9 @@
 
 PDM pdm;
 double vReal[2048];
-
+bool micFlag = false;
 int16_t sBuffer[PDM_BUFFER_LEN];
+int16_t sBuffer2[PDM_BUFFER_LEN];
 TaskHandle_t PDMTask;
 #ifdef DEBUG_PDM_LED
 TaskHandle_t PDMDebug;
@@ -45,7 +46,8 @@ void PDM::setup()
 
 void PDM::PDMloop(void *pvParameters)
 {
-  while (micFlag == false)
+  while(true) {
+  if (micFlag == false)
   {
 
 #ifdef DEBUG_PDM_SERIAL
@@ -61,6 +63,7 @@ void PDM::PDMloop(void *pvParameters)
     // Get I2S data and place in data buffer
     size_t bytesIn = 0;
     esp_err_t result = i2s_read(I2S_PORT, &sBuffer, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
+    result = i2s_read(I2S_PORT, &sBuffer2, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
 
     if (result == ESP_OK)
     {
@@ -77,9 +80,13 @@ void PDM::PDMloop(void *pvParameters)
         // Average the data reading
         mean /= samples_read;
         pdm.oStream.setValue(mean);
-        for (int i = 0; i < 2048; i++)
+        for (int i = 0; i < 1024; i++)
         {
             vReal[i] = (double)sBuffer[i];
+        }
+        for (int i = 1024; i < 2048; i++)
+        {
+            vReal[i] = (double)sBuffer2[i];
         }
         calc(vReal, PDM_SAMPLE_RATE);
         micFlag = true;
@@ -89,6 +96,7 @@ void PDM::PDMloop(void *pvParameters)
 #endif
       }
     }
+  }
   }
 }
 

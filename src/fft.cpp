@@ -20,6 +20,8 @@ const uint16_t samples = 2048;
 double vImag[samples];
 double freq[samples / 2];
 double mag[samples / 2];
+double micData[1024];
+double accData[1024];
 
 void fftPrint(double vReal[2048])
 {
@@ -59,12 +61,24 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void saveValues(double vData[2048], double samplingFrequency) {
    if(samplingFrequency == 16000) {
-      std::copy(vData, vData+2048, micData);
+      std::copy(vData, vData+1024, micData);
+      Serial.print(" ACC FFT DATA");
+      for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(micData[i] / samples, 6);
+      Serial.print(" ");
+   }
    }
    else {
-      std::copy(vData, vData+2048, accData);
+      Serial.println(" ");
+      Serial.print("MIC FFT DATA");
+      std::copy(vData, vData+1024, accData);
+      for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(accData[i] / samples, 6);
+      Serial.print(" ");
    }
-   
+   }
 }
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8

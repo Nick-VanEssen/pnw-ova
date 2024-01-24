@@ -4,7 +4,6 @@
 
 TaskHandle_t MONTask;
 MON mon;
-
 void MON::setup()
 {
   xTaskCreatePinnedToCore(MONloop,           /* Task function. */

@@ -1,6 +1,6 @@
 #pragma once
 
-    double micData[2048];
-    double accData[2048];
-    bool micFlag;
-    bool accFlag;
+    extern double micData[1024];
+    extern double accData[1024];
+    extern bool micFlag;
+    extern bool accFlag;
