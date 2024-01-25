@@ -37,11 +37,11 @@
 // Use I2S Processor 0
 #define I2S_PORT I2S_NUM_0
 // Define input buffer length
-#define PDM_BUFFER_LEN 200
+#define PDM_BUFFER_LEN 1024
 #define PDM_TASK_DELAY 100
 #define PDM_SAMPLE_RATE 16000
 // Task defines
-#define PDM_STACK_SIZE 1000
+#define PDM_STACK_SIZE 1000*18
 #define PDM_TASK_PRIORITY 10
 #define PDM_TASK_CORE 0
 // Debug Task Defines
@@ -69,4 +69,14 @@
 #define FFT_STACK_SIZE 5200
 #define FFT_TASK_PRIORITY 10
 #define FFT_TASK_CORE 1
+//#####################################################//
+
+
+////////////////////////MON SETTINGS/////////////////
+#define MON_BUFFER_LEN 200
+#define MON_TASK_DELAY 100
+// Task defines
+#define MON_STACK_SIZE 5200
+#define MON_TASK_PRIORITY 10
+#define MON_TASK_CORE 1
 //#####################################################//

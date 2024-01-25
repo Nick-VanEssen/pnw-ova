@@ -1,10 +1,13 @@
 #include <chrono>
-#include <map>
+// #include <map>
 #include <fft.h>
 #include <algorithm>
 #include <iterator>
 #include <settings.h>
 #include <main.h>
+#include <global.h>
+#include <algorithm>
+#include <iostream>
 using namespace std;
 using namespace std::chrono;
 
@@ -12,12 +15,13 @@ using namespace std::chrono;
 
 arduinoFFT FFTfunc = arduinoFFT();
 
-const double samplingFrequency = 3600;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
 double vImag[samples];
 double freq[samples / 2];
 double mag[samples / 2];
+double micData[1024];
+double accData[1024];
 
 void fftPrint(double vReal[2048])
 {
@@ -46,7 +50,7 @@ void fftPrint(double vReal[2048])
    std::fill_n(vReal, samples, 0);
 }
 
-void logFreq(double vData[2048], uint16_t bufferSize)
+void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 {
    for (uint16_t i = 0; i < bufferSize; i++)
    {
@@ -55,9 +59,34 @@ void logFreq(double vData[2048], uint16_t bufferSize)
    }
 }
 
+void saveValues(double vData[2048], double samplingFrequency)
+{
+   if (samplingFrequency == 16000)
+   {
+      std::copy(vData, vData + 1024, micData);
+      Serial.print(" ACC FFT DATA");
+      for (int i = 0; i < samples / 2; i++)
+      {
+         Serial.print(micData[i] / samples, 6);
+         Serial.print(" ");
+      }
+   }
+   else
+   {
+      Serial.println(" ");
+      Serial.print("MIC FFT DATA");
+      std::copy(vData, vData + 1024, accData);
+      for (int i = 0; i < samples / 2; i++)
+      {
+         Serial.print(accData[i] / samples, 6);
+         Serial.print(" ");
+      }
+   }
+}
+
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
-void calc(double vReal[2048])
+void calc(double vReal[2048], double samplingFrequency)
 {
    // std::copy(vReal, vReal+2048, copiedArr);
    // auto stop = high_resolution_clock::now();
@@ -68,9 +97,12 @@ void calc(double vReal[2048])
    FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
    FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
    FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
-   logFreq(vReal, samples / 2);
-   fftPrint(vReal);
+
+   logFreq(vReal, samples / 2, samplingFrequency);
+   // fftPrint(vReal);
+   saveValues(vReal, samplingFrequency);
 }
+
 // void WebSocketLog(double data)
 // {
 //    // Serial.println("Log websocket.");

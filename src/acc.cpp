@@ -1,10 +1,11 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_ADXL345_U.h>
-#include <map>
+// #include <map>
 #include <acc.h>
 #include <main.h>
 #include <fft.h>
+#include <global.h>
 #include <settings.h>
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
@@ -12,6 +13,7 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 int i = 0;
 TaskHandle_t ACCTask;
 bool flag1;
+bool accFlag = false;
 
 ACC acc;
 
@@ -36,7 +38,8 @@ void ACC::ACCloop(void *pvParameters)
   double yval;
   double zval;
   double arr[2048];
-  while (true)
+  while(true) {
+  if (accFlag == false)
   {
     for (i = 0; i < 2048; i++)
     {
@@ -61,8 +64,12 @@ void ACC::ACCloop(void *pvParameters)
       /*Take a 0.3125 ms break*/
       delay(ACC_SAMPLE_DELAY);
     }
-    calc(arr);
+    accFlag = true;
+    calc(arr, 3600.0);
+    accFlag = true;
     vTaskDelay(ACC_LOOP_DELAY);
+  
+  }
   }
 }
 
