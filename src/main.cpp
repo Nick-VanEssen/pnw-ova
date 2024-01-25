@@ -13,7 +13,8 @@
 #include <main.h>
 #include <FFT.h>
 #include <WiFi.h>
-#include <monitor.h>
+#include <global.h>
+// #include <monitor.h>
 
 bool ledState = 0;
 const int ledPin = 2;
@@ -25,7 +26,6 @@ MAILRESULTS mailResults;
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
-JSONVar readings;
 
 // WebSocket function
 String sendFFTData()
@@ -34,21 +34,17 @@ String sendFFTData()
   double frequencyData[dataLength];
   double magnitudeData[dataLength];
 
-  getFrequencyData(frequencyData, dataLength);
-  getMagnitudeData(magnitudeData, dataLength);
-
   JSONVar fftJson;
   JSONVar freqArray;
   JSONVar magArray;
 
   for (size_t i = 0; i < dataLength; i++)
   {
-    freqArray[i] = frequencyData[i];
-    magArray[i] = magnitudeData[i];
+    freqArray[i] = accData[i];
   }
 
   fftJson["frequency"] = freqArray;
-  fftJson["magnitude"] = magArray;
+  fftJson["magnitude"] = 0; // TODO
 
   String jsonString = JSON.stringify(fftJson);
   return jsonString;
@@ -157,7 +153,7 @@ void setup()
 
   pdm.setup();
   acc.setup();
-  mon.setup();
+  // mon.setup();
   startTime();
 }
 
@@ -178,9 +174,9 @@ void loop()
   }
   wm.process();
 
-  // Send fft data after 1 second
+  // Send fft data after .1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 1000)
+  if (millis() - lastFFTDataSendTime > 100)
   {
     String sensorReadings = sendFFTData();
     lastFFTDataSendTime = millis();

@@ -64,7 +64,7 @@ void saveValues(double vData[2048], double samplingFrequency)
    if (samplingFrequency == 16000)
    {
       std::copy(vData, vData + 1024, micData);
-      Serial.print(" ACC FFT DATA");
+      Serial.print("MIC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
       {
          Serial.print(micData[i] / samples, 6);
@@ -74,7 +74,7 @@ void saveValues(double vData[2048], double samplingFrequency)
    else
    {
       Serial.println(" ");
-      Serial.print("MIC FFT DATA");
+      Serial.print("ACC FFT DATA");
       std::copy(vData, vData + 1024, accData);
       for (int i = 0; i < samples / 2; i++)
       {
@@ -132,9 +132,9 @@ void getFrequencyData(double *outArray, size_t length)
    for (size_t i = 0; i < length && i < samples / 2; i++)
    {
       Serial.println(" ");
-      Serial.println("HERE IS THE ARRAYS WE NEEED IASUBDOIAHSBDJKHASBDJKHABS ");
-      outArray[i] = vReal[i];
-      Serial.print(vReal[i]);
+      Serial.println("************************ARRAY DATA NEEDED************************: ");
+      outArray[i] = accData[i];
+      Serial.print(accData[i]);
    }
 }
 
