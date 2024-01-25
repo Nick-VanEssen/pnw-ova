@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OVA Web Server</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -23,73 +22,6 @@
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      // Set up WebSocket connection
-      var socket = new WebSocket("ws://10.0.0.239/ws");
-      var chart;
-
-      // WebSocket event listeners
-      socket.onopen = function (event) {
-        console.log("Connected to WebSocket");
-      };
-
-      socket.onmessage = function (event) {
-        // Parse the incoming data
-        var data = JSON.parse(event.data);
-        updateChart(data);
-      };
-
-      socket.onclose = function (event) {
-        console.log("WebSocket connection closed");
-      };
-
-      function updateChart(data) {
-        var chartData = data.map(function (d) {
-          return { x: d.frequency, y: d.magnitude };
-        });
-
-        if (chart) {
-          // Update chart if it exists
-          chart.data.datasets[0].data = chartData;
-          chart.update();
-        } else {
-          // Create chart if it doesn't exist
-          const ctx = document.getElementById("myChart");
-          chart = new Chart(ctx, {
-            type: "line",
-            data: {
-              datasets: [
-                {
-                  label: "Frequency vs Magnitude",
-                  data: chartData,
-                  fill: false,
-                  borderColor: "rgb(75, 192, 192)",
-                  tension: 0.1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  title: {
-                    display: true,
-                    text: "Magnitude",
-                  },
-                },
-                x: {
-                  type: "linear",
-                  position: "bottom",
-                  title: {
-                    display: true,
-                    text: "Frequency (Hz)",
-                  },
-                },
-              },
-            },
-          });
-        }
-      }
-    </script>
+    <script src="script.js"></script>
   </body>
 </html>

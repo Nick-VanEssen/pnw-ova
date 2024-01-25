@@ -68,24 +68,48 @@ void calc(double vReal[2048])
    FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
    FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
    FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
-
    logFreq(vReal, samples / 2);
    fftPrint(vReal);
+}
+// void WebSocketLog(double data)
+// {
+//    // Serial.println("Log websocket.");
+//    // Serial.printf("%d clients connected.\n", GetClientsCount());
 
-   // Websocket functions
-   void getFrequencyData(double *outArray, size_t length)
+//    for (uint8_t index = 0; index < maxClients; index++)
+//    {
+//       WebsocketsClient *client = _clients[index];
+//       if (client == NULL)
+//       {
+//          continue;
+//       }
+
+//       if (!client->available() || !client->send(data))
+//       {
+//          _clients[index] = NULL;
+//          // Serial.println("Remove disconnected websocket client from Log().");
+//          client->close();
+//          delete client;
+//       }
+//    }
+// }
+
+// Websocket functions
+void getFrequencyData(double *outArray, size_t length)
+{
+   for (size_t i = 0; i < length && i < samples / 2; i++)
    {
-      for (size_t i = 0; i < length && i < samples / 2; ++i)
-      {
-         outArray[i] = freq[i];
-      }
+      Serial.println(" ");
+      Serial.println("HERE IS THE ARRAYS WE NEEED IASUBDOIAHSBDJKHASBDJKHABS ");
+      outArray[i] = vReal[i];
+      Serial.print(vReal[i]);
    }
+}
 
-   void getMagnitudeData(double *outArray, size_t length)
+void getMagnitudeData(double *outArray, size_t length)
+{
+   for (size_t i = 0; i < length && i < samples / 2; i++)
    {
-      for (size_t i = 0; i < length && i < samples / 2; ++i)
-      {
-         outArray[i] = mag[i];
-      }
+      outArray[i] = mag[i];
    }
 }

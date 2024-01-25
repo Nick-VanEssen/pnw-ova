@@ -12,6 +12,7 @@
 #include <acc.h>
 #include <main.h>
 #include <FFT.h>
+#include <WiFi.h>
 
 bool ledState = 0;
 const int ledPin = 2;
@@ -25,68 +26,95 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 JSONVar readings;
 
-String processor(const String &var)
+// WebSocket function
+String sendFFTData()
 {
-  /* Serial.println(var);
-   if (var == "STATE")
-   {
-     if (ledState)
-     {
-       return "ON";
-     }
-     else
-     {
-       return "OFF";
-     }
-   }*/
-  return String();
+  const size_t dataLength = 10;
+  double frequencyData[dataLength];
+  double magnitudeData[dataLength];
+
+  getFrequencyData(frequencyData, dataLength);
+  getMagnitudeData(magnitudeData, dataLength);
+
+  JSONVar fftJson;
+  JSONVar freqArray;
+  JSONVar magArray;
+
+  for (size_t i = 0; i < dataLength; i++)
+  {
+    freqArray[i] = frequencyData[i];
+    magArray[i] = magnitudeData[i];
+  }
+
+  fftJson["frequency"] = freqArray;
+  fftJson["magnitude"] = magArray;
+
+  String jsonString = JSON.stringify(fftJson);
+  return jsonString;
 }
 
-void sendFFTData() {
-    const size_t dataLength = 1024;
-    double frequencyData[dataLength];
-    double magnitudeData[dataLength];
+void notifyClients(String sensorReadings)
+{
+  ws.textAll(sensorReadings);
+}
 
-    getFrequencyData(frequencyData, dataLength);
-    getMagnitudeData(magnitudeData, dataLength);
-
-    JSONVar fftJson;
-    JSONVar freqArray;
-    JSONVar magArray;
-
-    for (size_t i = 0; i < dataLength; ++i) {
-        freqArray[i] = frequencyData[i];
-        magArray[i] = magnitudeData[i];
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
+{
+  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    data[len] = 0;
+    String message = (char *)data;
+    // Check if the message is "getReadings"
+    if (strcmp((char *)data, "getReadings") == 0)
+    {
+      // if it is, send current sensor readings
+      String sensorReadings = sendFFTData();
+      Serial.print(sensorReadings);
+      notifyClients(sensorReadings);
     }
-
-    fftJson["frequency"] = freqArray;
-    fftJson["magnitude"] = magArray;
-
-    String jsonString = JSON.stringify(fftJson);
-    ws.textAll(jsonString);
+  }
 }
-
 // WebSocket event handler
-void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, 
-               AwsEventType type, void *arg, uint8_t *data, size_t len) {
-  if (type == WS_EVT_CONNECT) {
-    Serial.printf("WebSocket client #%u connected from %s\n", 
-                  client->id(), client->remoteIP().toString().c_str());
-  } else if (type == WS_EVT_DISCONNECT) {
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  switch (type)
+  {
+  case WS_EVT_CONNECT:
+    Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+    break;
+  case WS_EVT_DISCONNECT:
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
-  } else if (type == WS_EVT_DATA) {
-    // Handle data received
+    break;
+  case WS_EVT_DATA:
+    handleWebSocketMessage(arg, data, len);
+    break;
+  case WS_EVT_PONG:
+  case WS_EVT_ERROR:
+    break;
   }
 }
 
-
-void startTime() {
+void startTime()
+{
   start = high_resolution_clock::now();
 }
 
-high_resolution_clock::time_point getStartTime() {
+high_resolution_clock::time_point getStartTime()
+{
   return start;
 }
+
+// Find IP of board, set it as string to be used in index. Most likely not used anymore.
+// String processor(const String &var)
+// {
+
+//   if (var == "IPaddress")
+//   {
+//     return WiFi.localIP().toString();
+//   }
+//   return String();
+// }
 
 void setup()
 {
@@ -114,20 +142,21 @@ void setup()
   {
     Serial.println("Connection Successful!");
   }
-  
-  server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/index.html", "text/html"); });
+  server.serveStatic("/", LittleFS, "/");
 
   server.begin();
 
   pdm.setup();
 
-  ws.onEvent(onWsEvent);
+  ws.onEvent(onEvent);
   server.addHandler(&ws);
-  
+
   pdm.setup();
   acc.setup();
   startTime();
-
 }
 
 void emailNotification();
@@ -147,15 +176,17 @@ void loop()
   }
   wm.process();
 
-// Send fft data after 10 seconds
-static unsigned long lastFFTDataSendTime = 0;
-if (millis() - lastFFTDataSendTime > 10000) {
-    sendFFTData();
+  // Send fft data after 1 second
+  static unsigned long lastFFTDataSendTime = 0;
+  if (millis() - lastFFTDataSendTime > 1000)
+  {
+    String sensorReadings = sendFFTData();
     lastFFTDataSendTime = millis();
-}
-
-  // Memory debug data
-  #ifdef DEBUG_STACK
+    notifyClients(sensorReadings);
+  }
+  ws.cleanupClients();
+// Memory debug data
+#ifdef DEBUG_STACK
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
     intervalTimer = millis();
@@ -164,7 +195,5 @@ if (millis() - lastFFTDataSendTime > 10000) {
     pdm.printMemoryUsage();
     acc.printMemoryUsage();
   }
-  #endif
-  
+#endif
 }
-
