@@ -18,14 +18,13 @@ void MON::setup()
 
 void MON::MONloop(void *pvParameters)
 {  
-  
-  while(accFlag = true) {
+  /*
+  while(semaphore logic) {
     // monitor code
-    accFlag = false;
   }
 
-  while(micFlag = true) {
+  while(semaphore logic) {
     // monitor code
-    micFlag = false;
   }
+  */
 }

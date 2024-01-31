@@ -11,6 +11,7 @@ bool micFlag = false;
 int16_t sBuffer[PDM_BUFFER_LEN];
 int16_t sBuffer2[PDM_BUFFER_LEN];
 TaskHandle_t PDMTask;
+SemaphoreHandle_t xSemaphore2 = NULL;
 #ifdef DEBUG_PDM_LED
 TaskHandle_t PDMDebug;
 #endif
@@ -21,6 +22,7 @@ void PDM::setup()
   i2s_install();
   i2s_setPin();
   i2s_start(I2S_PORT);
+  xSemaphore2 = xSemaphoreCreateMutex();
   xTaskCreatePinnedToCore(PDMloop,           /* Task function. */
                           "PDMTask",         /* name of task. */
                           PDM_STACK_SIZE,    /* Stack size of task*/
@@ -46,57 +48,61 @@ void PDM::setup()
 
 void PDM::PDMloop(void *pvParameters)
 {
-  while(true) {
-  if (micFlag == false)
+  while (true)
   {
-
-#ifdef DEBUG_PDM_SERIAL
-    // False print statements to "lock range" on serial plotter display
-    // Change rangelimit value to adjust "sensitivity"
-    int rangelimit = PDM_DEBUG_RANGE_LIMIT;
-    Serial.print(rangelimit * -1);
-    Serial.print(" ");
-    Serial.print(rangelimit);
-    Serial.print(" ");
-#endif
-
-    // Get I2S data and place in data buffer
-    size_t bytesIn = 0;
-    esp_err_t result = i2s_read(I2S_PORT, &sBuffer, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
-    result = i2s_read(I2S_PORT, &sBuffer2, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
-
-    if (result == ESP_OK)
+    if (xSemaphore2 != NULL)
     {
-      // Read I2S data buffer
-      int16_t samples_read = bytesIn / 8;
-      if (samples_read > 0)
+      if (xSemaphoreTake(xSemaphore2, (TickType_t)10) == pdTRUE)
       {
-        float mean = 0;
-        for (int16_t i = 0; i < samples_read; ++i)
-        {
-          mean += (sBuffer[i]);
-        }
 
-        // Average the data reading
-        mean /= samples_read;
-        pdm.oStream.setValue(mean);
-        for (int i = 0; i < 1024; i++)
-        {
-            vReal[i] = (double)sBuffer[i];
-        }
-        for (int i = 1024; i < 2048; i++)
-        {
-            vReal[i] = (double)sBuffer2[i];
-        }
-        calc(vReal, PDM_SAMPLE_RATE);
-        micFlag = true;
 #ifdef DEBUG_PDM_SERIAL
-        // Print to serial plotter
-        Serial.println(mean);
+        // False print statements to "lock range" on serial plotter display
+        // Change rangelimit value to adjust "sensitivity"
+        int rangelimit = PDM_DEBUG_RANGE_LIMIT;
+        Serial.print(rangelimit * -1);
+        Serial.print(" ");
+        Serial.print(rangelimit);
+        Serial.print(" ");
 #endif
+
+        // Get I2S data and place in data buffer
+        size_t bytesIn = 0;
+        esp_err_t result = i2s_read(I2S_PORT, &sBuffer, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
+        result = i2s_read(I2S_PORT, &sBuffer2, PDM_BUFFER_LEN, &bytesIn, portMAX_DELAY);
+
+        if (result == ESP_OK)
+        {
+          // Read I2S data buffer
+          int16_t samples_read = bytesIn / 8;
+          if (samples_read > 0)
+          {
+            float mean = 0;
+            for (int16_t i = 0; i < samples_read; ++i)
+            {
+              mean += (sBuffer[i]);
+            }
+
+            // Average the data reading
+            mean /= samples_read;
+            pdm.oStream.setValue(mean);
+            for (int i = 0; i < 1024; i++)
+            {
+              vReal[i] = (double)sBuffer[i];
+            }
+            for (int i = 1024; i < 2048; i++)
+            {
+              vReal[i] = (double)sBuffer2[i];
+            }
+            //calc(vReal, PDM_SAMPLE_RATE);
+            xSemaphoreGive( xSemaphore2 );
+#ifdef DEBUG_PDM_SERIAL
+            // Print to serial plotter
+            Serial.println(mean);
+#endif
+          }
+        }
       }
     }
-  }
   }
 }
 
