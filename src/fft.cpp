@@ -26,10 +26,10 @@ accData accdata;
 void fftPrint(double vReal[2048])
 {
    Serial.println(" ");
-   // Serial.print("Freq: ");
-   // for (int i = 0; i < samples/2 ; i++) {
-   //    Serial.print(freq[i]); Serial.print(" ");
-   // }
+   Serial.print("Freq: ");
+   for (int i = 0; i < samples/2 ; i++) {
+      Serial.print(freq[i]); Serial.print(" ");
+   }
    Serial.print("Original: ");
    for (int i = 0; i < samples; i++)
    {

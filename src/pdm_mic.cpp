@@ -93,7 +93,7 @@ void PDM::PDMloop(void *pvParameters)
             {
               vReal[i] = (double)sBuffer2[i];
             }
-            //calc(vReal, PDM_SAMPLE_RATE);
+            calc(vReal, PDM_SAMPLE_RATE);
             xSemaphoreGive( xSemaphore2 );
 #ifdef DEBUG_PDM_SERIAL
             // Print to serial plotter
@@ -103,6 +103,7 @@ void PDM::PDMloop(void *pvParameters)
         }
       }
     }
+  vTaskDelay(1);
   }
 }
 

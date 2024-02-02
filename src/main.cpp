@@ -70,6 +70,7 @@ void setup()
   // Serial.println("Connection Successful!");
   
   pdm.setup();
+  Serial.print("a;ldkfja;ksdjfkl;a");
   acc.setup();
   mon.setup();
   startTime();

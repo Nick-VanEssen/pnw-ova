@@ -19,8 +19,9 @@ ACC acc;
 
 void ACC::setup()
 {
+    Serial.printf("test");
   accel.begin();
-
+    Serial.printf("test2");
   // memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
@@ -29,6 +30,7 @@ void ACC::setup()
                           ACC_TASK_PRIORITY, /* priority of             /* priority of the task*/
                           &ACCTask,          /* Task handle to keep track of created task */
                           ACC_TASK_CORE);    /* pin task to core 0 */
+  vTaskDelay(1000);
   Serial.printf("ACC task started");
   xSemaphore = xSemaphoreCreateMutex();
 }
@@ -40,6 +42,7 @@ void ACC::ACCloop(void *pvParameters)
   double yval;
   double zval;
   double arr[2048];
+  Serial.print("hi");
   while (true)
   {
     if (xSemaphore != NULL)
@@ -71,9 +74,9 @@ void ACC::ACCloop(void *pvParameters)
         }
         calc(arr, 3600.0);
         xSemaphoreGive( xSemaphore );
-        vTaskDelay(ACC_LOOP_DELAY);
       }
     }
+  vTaskDelay(ACC_LOOP_DELAY);
   }
 }
 
