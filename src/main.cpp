@@ -9,6 +9,7 @@
 #include <acc.h>
 #include <main.h>
 #include <FFT.h>
+#include <monitor.h>
 
 bool ledState = 0;
 const int ledPin = 2;
@@ -69,7 +70,9 @@ void setup()
   // Serial.println("Connection Successful!");
   
   pdm.setup();
+  Serial.print("a;ldkfja;ksdjfkl;a");
   acc.setup();
+  mon.setup();
   startTime();
 
 }

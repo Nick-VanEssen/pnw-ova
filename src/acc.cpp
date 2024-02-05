@@ -1,10 +1,11 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_ADXL345_U.h>
-#include <map>
+// #include <map>
 #include <acc.h>
 #include <main.h>
 #include <fft.h>
+#include <global.h>
 #include <settings.h>
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
@@ -12,12 +13,15 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 int i = 0;
 TaskHandle_t ACCTask;
 bool flag1;
-
+bool accFlag = false;
+SemaphoreHandle_t xSemaphore = NULL;
 ACC acc;
 
 void ACC::setup()
 {
+    Serial.printf("test");
   accel.begin();
+    Serial.printf("test2");
   // memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
@@ -26,7 +30,9 @@ void ACC::setup()
                           ACC_TASK_PRIORITY, /* priority of             /* priority of the task*/
                           &ACCTask,          /* Task handle to keep track of created task */
                           ACC_TASK_CORE);    /* pin task to core 0 */
+  vTaskDelay(1000);
   Serial.printf("ACC task started");
+  xSemaphore = xSemaphoreCreateMutex();
 }
 
 void ACC::ACCloop(void *pvParameters)
@@ -36,33 +42,41 @@ void ACC::ACCloop(void *pvParameters)
   double yval;
   double zval;
   double arr[2048];
+  Serial.print("hi");
   while (true)
   {
-    for (i = 0; i < 2048; i++)
+    if (xSemaphore != NULL)
     {
-      /*Read from ADXL345 accelerometer*/
-      sensors_event_t event;
-      accel.getEvent(&event);
-      xval = (event.acceleration.x);
-      yval = (event.acceleration.y);
-      zval = (event.acceleration.z); // will need to change what variable is affected by gravity depending on board orientation
+      if (xSemaphoreTake(xSemaphore, (TickType_t)10) == pdTRUE)
+      {
+        for (i = 0; i < 2048; i++)
+        {
+          /*Read from ADXL345 accelerometer*/
+          sensors_event_t event;
+          accel.getEvent(&event);
+          xval = (event.acceleration.x);
+          yval = (event.acceleration.y);
+          zval = (event.acceleration.z); // will need to change what variable is affected by gravity depending on board orientation
 
-      // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
-      // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
-     // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
+          // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
+          // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
+          // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
 
-      // auto stop = high_resolution_clock::now();
-      // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());           // Block is used to print time data taken
-      // auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
-      // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
+          // auto stop = high_resolution_clock::now();
+          // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());           // Block is used to print time data taken
+          // auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
+          // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
 
-      val = xval + yval + zval - SENSORS_GRAVITY_STANDARD;
-      arr[i] = zval;
-      /*Take a 0.3125 ms break*/
-      delay(ACC_SAMPLE_DELAY);
+          val = xval + yval + zval - SENSORS_GRAVITY_STANDARD;
+          arr[i] = zval;
+          /*Take a 0.3125 ms break*/
+          delay(ACC_SAMPLE_DELAY);
+        }
+        calc(arr, 3600.0);
+        xSemaphoreGive( xSemaphore );
+      }
     }
-    calc(arr, 3600.0);
-    vTaskDelay(ACC_LOOP_DELAY);
+  vTaskDelay(ACC_LOOP_DELAY);
   }
 }
 
