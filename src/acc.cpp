@@ -19,9 +19,8 @@ ACC acc;
 
 void ACC::setup()
 {
-    Serial.printf("test");
   accel.begin();
-    Serial.printf("test2");
+  
   // memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */

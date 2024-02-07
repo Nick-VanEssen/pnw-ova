@@ -22,6 +22,8 @@ double freq[samples / 2];
 double mag[samples / 2];
 micData micdata;
 accData accdata;
+Baseline base;
+bool flag1 = false; bool flag2 = false;  //in order to only take baseline data once.
 
 void fftPrint(double vReal[2048])
 {
@@ -68,6 +70,10 @@ void saveValues(double vData[2048], double samplingFrequency) {
       Serial.print(micdata.micFFTData[i] / samples, 6);
       Serial.print(" ");
    }
+      if(flag1 = false) {
+         std::copy(vData, vData+1024, base.micBaseline);
+         flag1 = true;
+      }
    }
    else {
       Serial.println(" \n");
@@ -79,6 +85,10 @@ void saveValues(double vData[2048], double samplingFrequency) {
       Serial.print(accdata.accFFTData[i] / samples, 6);
       Serial.print(" ");
    }
+   if(flag2 = false) {
+         std::copy(vData, vData+1024, base.accBaseline);
+         flag2 = true;
+      }
    }
 }
 

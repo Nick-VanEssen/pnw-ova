@@ -9,4 +9,5 @@
     #define SCL_PLOT 0x03
 
     void calc(double vReal[2048], double samplingFrequency);
+    
 
