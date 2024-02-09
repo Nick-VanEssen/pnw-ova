@@ -41,7 +41,7 @@
 #define PDM_TASK_DELAY 100
 #define PDM_SAMPLE_RATE 16000
 // Task defines
-#define PDM_STACK_SIZE 1000*18
+#define PDM_STACK_SIZE 1024*18
 #define PDM_TASK_PRIORITY 10
 #define PDM_TASK_CORE 0
 // Debug Task Defines
@@ -59,18 +59,8 @@
 #define ACC_STACK_SIZE 1024*18
 #define ACC_TASK_PRIORITY 10
 #define ACC_TASK_CORE 1
-#define ACC_LOOP_DELAY 1000 //how many ms to delay between data collection cycles
+#define ACC_LOOP_DELAY 1 //how many ms to delay between data collection cycles
 //#####################################################//
-
-////////////////////////FFT SETTINGS/////////////////
-#define FFT_BUFFER_LEN 200
-#define FFT_TASK_DELAY 100
-// Task defines
-#define FFT_STACK_SIZE 5200
-#define FFT_TASK_PRIORITY 10
-#define FFT_TASK_CORE 1
-//#####################################################//
-
 
 ////////////////////////MON SETTINGS/////////////////
 #define MON_BUFFER_LEN 200

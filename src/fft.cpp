@@ -20,16 +20,18 @@ const uint16_t samples = 2048;
 double vImag[samples];
 double freq[samples / 2];
 double mag[samples / 2];
-double micData[1024];
-double accData[1024];
+micData micdata;
+accData accdata;
 
 void fftPrint(double vReal[2048])
 {
    Serial.println(" ");
-   // Serial.print("Freq: ");
-   // for (int i = 0; i < samples/2 ; i++) {
-   //    Serial.print(freq[i]); Serial.print(" ");
-   // }
+   Serial.print("Freq: ");
+   for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(freq[i]);
+      Serial.print(" ");
+   }
    Serial.print("Original: ");
    for (int i = 0; i < samples; i++)
    {
@@ -46,8 +48,6 @@ void fftPrint(double vReal[2048])
    }
    std::fill_n(freq, samples / 2, 0);
    std::fill_n(mag, samples / 2, 0);
-   std::fill_n(vImag, samples, 0);
-   std::fill_n(vReal, samples, 0);
 }
 
 void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
@@ -63,22 +63,25 @@ void saveValues(double vData[2048], double samplingFrequency)
 {
    if (samplingFrequency == 16000)
    {
-      std::copy(vData, vData + 1024, micData);
+      std::fill_n(micdata.micFFTData, samples / 2, 0);
+      std::copy(vData, vData + 1024, micdata.micFFTData);
+      Serial.println(" \n");
       Serial.print("MIC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
       {
-         Serial.print(micData[i] / samples, 6);
+         Serial.print(micdata.micFFTData[i] / samples, 6);
          Serial.print(" ");
       }
    }
    else
    {
-      Serial.println(" ");
+      Serial.println(" \n");
       Serial.print("ACC FFT DATA");
-      std::copy(vData, vData + 1024, accData);
+      std::fill_n(accdata.accFFTData, samples / 2, 0);
+      std::copy(vData, vData + 1024, accdata.accFFTData);
       for (int i = 0; i < samples / 2; i++)
       {
-         Serial.print(accData[i] / samples, 6);
+         Serial.print(accdata.accFFTData[i] / samples, 6);
          Serial.print(" ");
       }
    }
@@ -98,9 +101,12 @@ void calc(double vReal[2048], double samplingFrequency)
    FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
    FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
 
-   logFreq(vReal, samples / 2, samplingFrequency);
+   // logFreq(vReal, samples / 2, samplingFrequency);
    // fftPrint(vReal);
    saveValues(vReal, samplingFrequency);
+
+   std::fill_n(vImag, samples, 0);
+   std::fill_n(vReal, samples, 0);
 }
 
 // void WebSocketLog(double data)
@@ -127,21 +133,21 @@ void calc(double vReal[2048], double samplingFrequency)
 // }
 
 // Websocket functions
-void getFrequencyData(double *outArray, size_t length)
-{
-   for (size_t i = 0; i < length && i < samples / 2; i++)
-   {
-      Serial.println(" ");
-      Serial.println("************************ARRAY DATA NEEDED************************: ");
-      outArray[i] = accData[i];
-      Serial.print(accData[i]);
-   }
-}
+// void getFrequencyData(double *outArray, size_t length)
+// {
+//    for (size_t i = 0; i < length && i < samples / 2; i++)
+//    {
+//       Serial.println(" ");
+//       Serial.println("************************ARRAY DATA NEEDED************************: ");
+//       outArray[i] = accdata[i];
+//       Serial.print(accdata[i]);
+//    }
+// }
 
-void getMagnitudeData(double *outArray, size_t length)
-{
-   for (size_t i = 0; i < length && i < samples / 2; i++)
-   {
-      outArray[i] = mag[i];
-   }
-}
+// void getMagnitudeData(double *outArray, size_t length)
+// {
+//    for (size_t i = 0; i < length && i < samples / 2; i++)
+//    {
+//       outArray[i] = mag[i];
+//    }
+// }

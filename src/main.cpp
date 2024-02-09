@@ -152,6 +152,7 @@ void setup()
   server.addHandler(&ws);
 
   pdm.setup();
+  Serial.print("a;ldkfja;ksdjfkl;a");
   acc.setup();
   mon.setup();
   startTime();

@@ -1,6 +1,18 @@
 #pragma once
 
-    extern double micData[1024];
-    extern double accData[1024];
-    extern bool micFlag;
-    extern bool accFlag;
+class micData{
+private:
+public:
+    double micFFTData[1024];
+    bool micFlag;
+};
+
+class accData{
+private:
+public:
+    double accFFTData[1024];
+    bool accFlag;
+};
+
+extern accData accdata;
+extern micData micdata;
