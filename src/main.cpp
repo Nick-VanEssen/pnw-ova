@@ -18,33 +18,31 @@
 
 bool ledState = 0;
 const int ledPin = 2;
-high_resolution_clock::time_point start;
 
+high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
-
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 // WebSocket function
 String sendFFTData()
 {
-  const size_t dataLength = 10;
+  const size_t dataLength = 1024;
   double frequencyData[dataLength];
   double magnitudeData[dataLength];
 
   JSONVar fftJson;
-  JSONVar freqArray;
   JSONVar magArray;
 
   for (size_t i = 0; i < dataLength; i++)
   {
-    freqArray[i] = accData[i];
+    magArray[i] = accdata.accFFTData[i];
   }
 
-  fftJson["frequency"] = freqArray;
-  fftJson["magnitude"] = 0; // TODO
+  fftJson["magnitude"] = magArray;
+  fftJson["freq"] = 0; // TODO
 
   String jsonString = JSON.stringify(fftJson);
   return jsonString;
@@ -152,7 +150,6 @@ void setup()
   server.addHandler(&ws);
 
   pdm.setup();
-  Serial.print("a;ldkfja;ksdjfkl;a");
   acc.setup();
   mon.setup();
   startTime();
@@ -175,9 +172,9 @@ void loop()
   }
   wm.process();
 
-  // Send fft data after .1 second
+  // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 100)
+  if (millis() - lastFFTDataSendTime > 1000)
   {
     String sensorReadings = sendFFTData();
     lastFFTDataSendTime = millis();

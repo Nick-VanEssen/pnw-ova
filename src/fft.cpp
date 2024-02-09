@@ -94,7 +94,7 @@ void calc(double vReal[2048], double samplingFrequency)
    // std::copy(vReal, vReal+2048, copiedArr);
    // auto stop = high_resolution_clock::now();
    // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
-   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be inerval of .6 seconds
+   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be interval of .6 seconds
 
    FFTfunc.DCRemoval(vReal, samples);
    FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
