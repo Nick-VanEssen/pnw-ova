@@ -144,8 +144,6 @@ void setup()
 
   server.begin();
 
-  pdm.setup();
-
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
