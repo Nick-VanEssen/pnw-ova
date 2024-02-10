@@ -25,26 +25,21 @@ WiFiManager wm;
 MAILRESULTS mailResults;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
+String sensorReadings;
+String jsonString;
+
+JSONVar fftJson;
+JSONVar magArray;
 
 // WebSocket function
 String sendFFTData()
 {
-  const size_t dataLength = 1024;
-  double frequencyData[dataLength];
-  double magnitudeData[dataLength];
-
-  JSONVar fftJson;
-  JSONVar magArray;
-
-  for (size_t i = 0; i < dataLength; i++)
-  {
-    magArray[i] = accdata.accFFTData[i];
-  }
-
-  fftJson["magnitude"] = magArray;
+  fftJson["magnitude"] = accdata.accFFTData[5];
   fftJson["freq"] = 0; // TODO
+  Serial.print(ESP.getHeapSize());
+  Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
 
-  String jsonString = JSON.stringify(fftJson);
+  jsonString = JSON.stringify(fftJson);
   return jsonString;
 }
 
@@ -144,8 +139,6 @@ void setup()
 
   server.begin();
 
-  pdm.setup();
-
   ws.onEvent(onEvent);
   server.addHandler(&ws);
 
@@ -176,7 +169,7 @@ void loop()
   static unsigned long lastFFTDataSendTime = 0;
   if (millis() - lastFFTDataSendTime > 1000)
   {
-    String sensorReadings = sendFFTData();
+    sensorReadings = sendFFTData();
     lastFFTDataSendTime = millis();
     notifyClients(sensorReadings);
   }

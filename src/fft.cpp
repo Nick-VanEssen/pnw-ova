@@ -65,24 +65,24 @@ void saveValues(double vData[2048], double samplingFrequency)
    {
       std::fill_n(micdata.micFFTData, samples / 2, 0);
       std::copy(vData, vData + 1024, micdata.micFFTData);
-      Serial.println(" \n");
-      Serial.print("MIC FFT DATA");
+      // Serial.println(" \n");
+      // Serial.print("MIC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
       {
-         Serial.print(micdata.micFFTData[i] / samples, 6);
-         Serial.print(" ");
+         //  Serial.print(micdata.micFFTData[i] / samples, 6);
+         //  Serial.print(" ");
       }
    }
    else
    {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
+      // Serial.println(" \n");
+      // Serial.print("ACC FFT DATA");
       std::fill_n(accdata.accFFTData, samples / 2, 0);
       std::copy(vData, vData + 1024, accdata.accFFTData);
       for (int i = 0; i < samples / 2; i++)
       {
-         Serial.print(accdata.accFFTData[i] / samples, 6);
-         Serial.print(" ");
+         // Serial.print(accdata.accFFTData[i] / samples, 6);
+         // Serial.print(" ");
       }
    }
 }
