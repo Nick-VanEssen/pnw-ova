@@ -38,12 +38,12 @@
 #define I2S_PORT I2S_NUM_0
 // Define input buffer length
 #define PDM_BUFFER_LEN 1024
-#define PDM_TASK_DELAY 100
 #define PDM_SAMPLE_RATE 16000
 // Task defines
 #define PDM_STACK_SIZE 1024*18
 #define PDM_TASK_PRIORITY 10
 #define PDM_TASK_CORE 0
+#define PDM_TASK_DELAY 1000
 // Debug Task Defines
 #define PDM_DEBUG_STACK_SIZE 1000
 #define PDM_DEBUG_TASK_PRIORITY 3
@@ -59,7 +59,7 @@
 #define ACC_STACK_SIZE 1024*18
 #define ACC_TASK_PRIORITY 10
 #define ACC_TASK_CORE 1
-#define ACC_LOOP_DELAY 1 //how many ms to delay between data collection cycles
+#define ACC_LOOP_DELAY 1000 //how many ms to delay between data collection cycles
 //#####################################################//
 
 ////////////////////////MON SETTINGS/////////////////
@@ -70,3 +70,6 @@
 #define MON_TASK_PRIORITY 10
 #define MON_TASK_CORE 1
 //#####################################################//
+
+//uncomment to print the raw data to the serial terminal (Consumes significant resources)
+//#define PRINT_DATA
