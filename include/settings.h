@@ -51,7 +51,7 @@
 //#####################################################//
 
 ////////////////////////ACC SETTINGS/////////////////
-#define ACC_BUFFER_LEN 200
+#define ACC_BUFFER_LEN 1024
 #define ACC_TASK_DELAY 100
 #define ACC_SAMPLE_FREQUENCY 3200 //hz 
 #define ACC_SAMPLE_DELAY (1/ACC_SAMPLE_FREQUENCY)*1000 //3200hz above equates to .3125 period. 

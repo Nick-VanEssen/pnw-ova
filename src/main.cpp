@@ -32,13 +32,10 @@ JSONVar fftJson;
 JSONVar magArray;
 
 // WebSocket function
-String sendFFTData()
+String sendFFTData(int i)
 {
-  fftJson["magnitude"] = accdata.accFFTData[5];
-  fftJson["freq"] = 0; // TODO
-  Serial.print(ESP.getHeapSize());
-  Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-
+  fftJson["magnitude"] = accdata.accFFTData[i];
+  fftJson["freq"] = i; // TODO
   jsonString = JSON.stringify(fftJson);
   return jsonString;
 }
@@ -77,7 +74,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
     break;
   case WS_EVT_DATA:
-    handleWebSocketMessage(arg, data, len);
+   handleWebSocketMessage(arg, data, len);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -169,9 +166,12 @@ void loop()
   static unsigned long lastFFTDataSendTime = 0;
   if (millis() - lastFFTDataSendTime > 1000)
   {
-    sensorReadings = sendFFTData();
+    for (int i = 0; i < ACC_BUFFER_LEN; i++)
+    {
+      sensorReadings = sendFFTData(i);
+      notifyClients(sensorReadings);
+    }
     lastFFTDataSendTime = millis();
-    notifyClients(sensorReadings);
   }
   ws.cleanupClients();
 // Memory debug data
