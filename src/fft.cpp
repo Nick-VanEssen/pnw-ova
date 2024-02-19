@@ -70,15 +70,16 @@ void saveValues(double vData[2048], double samplingFrequency) {
    }
    }
    else {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
       std::fill_n(accdata.accFFTData, samples/ 2, 0);
       std::copy(vData, vData+1024, accdata.accFFTData);
+      Serial.println(" \n");
+      Serial.print("ACC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
-   {
+      {
       Serial.print(accdata.accFFTData[i] / samples, 6);
-      Serial.print(" ");
-   }
+      Serial.print("|");
+      }
+      vTaskDelay(100);
    }
 }
 
