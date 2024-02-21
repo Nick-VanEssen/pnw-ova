@@ -32,11 +32,20 @@ JSONVar fftJson;
 JSONVar magArray;
 
 // WebSocket function
-String sendFFTData(int i)
+String sendFFTData()
 {
-  fftJson["magnitude"] = accdata.accFFTData[i];
-  fftJson["freq"] = i; // TODO
+  Serial.print("Starting sendFFTData function...\n");
+  for (int i = 0; i < 50; i++)
+  {
+    Serial.print(i);
+    Serial.print(" ");
+    fftJson["magnitude"][i] = floor(accdata.accFFTData[i] * 100.0) / 100.0;
+    fftJson["freq"][i] = i;
+  }
+  Serial.print("\nFinished arrays...\n");
+  Serial.print("Beginning JSON stringify...\n");
   jsonString = JSON.stringify(fftJson);
+  Serial.print("Returning values...\n");
   return jsonString;
 }
 
@@ -74,7 +83,7 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     Serial.printf("WebSocket client #%u disconnected\n", client->id());
     break;
   case WS_EVT_DATA:
-   handleWebSocketMessage(arg, data, len);
+    handleWebSocketMessage(arg, data, len);
     break;
   case WS_EVT_PONG:
   case WS_EVT_ERROR:
@@ -164,13 +173,10 @@ void loop()
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 1000)
+  if (millis() - lastFFTDataSendTime > 100)
   {
-    for (int i = 0; i < ACC_BUFFER_LEN; i++)
-    {
-      sensorReadings = sendFFTData(i);
-      notifyClients(sensorReadings);
-    }
+    sensorReadings = sendFFTData();
+    notifyClients(sensorReadings);
     lastFFTDataSendTime = millis();
   }
   ws.cleanupClients();
