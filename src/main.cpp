@@ -7,8 +7,7 @@
 #include "email.h"
 #include "settings.h"
 #include "ESPAsyncWebServer.h"
-#include "JSONVar.h"
-#include "JSON.h"
+#include <ArduinoJson.h>
 #include <acc.h>
 #include <main.h>
 #include <FFT.h>
@@ -24,34 +23,41 @@ DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
 AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-String sensorReadings;
-String jsonString;
+AsyncWebSocket websocket("/ws");
 
-JSONVar fftJson;
-JSONVar magArray;
-
-// WebSocket function
-String sendFFTData()
+// Function to send FFT data
+char *sendFFTData()
 {
-  Serial.print("Starting sendFFTData function...\n");
-  for (int i = 0; i < 50; i++)
+  // No need to calc doc size for v7 because it is dynamic, but we need a size for char array
+  JsonDocument doc;
+
+  JsonArray magnitude = doc["magnitude"].to<JsonArray>();
+  JsonArray freq = doc["freq"].to<JsonArray>();
+
+  for (int i = 0; i < 300; i++)
   {
-    Serial.print(i);
-    Serial.print(" ");
-    fftJson["magnitude"][i] = floor(accdata.accFFTData[i] * 100.0) / 100.0;
-    fftJson["freq"][i] = i;
+    double magValue = floor(accdata.accFFTData[i] * 100.0) / 100.0; // Truncate to 2 decimal places
+    magnitude[i] = magValue;
+    freq[i] = i;
   }
-  Serial.print("\nFinished arrays...\n");
-  Serial.print("Beginning JSON stringify...\n");
-  jsonString = JSON.stringify(fftJson);
-  Serial.print("Returning values...\n");
+
+  size_t neededSize = measureJson(doc) + 1; // +1 for null terminator
+  char *jsonString = new char[neededSize];
+
+  // Serialize the JSON document to the char array
+  serializeJson(doc, jsonString, neededSize);
+
+  Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
+  Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+
+  // Return the JSON string. Caller is responsible for deleting it after use.
   return jsonString;
 }
 
-void notifyClients(String sensorReadings)
+void notifyClients(char *data)
 {
-  ws.textAll(sensorReadings);
+  websocket.textAll(data);
+  delete[] data; // Make sure to free the allocated memory after sending
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -59,15 +65,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    data[len] = 0;
-    String message = (char *)data;
+    data[len] = 0; // Ensure null-termination
     // Check if the message is "getReadings"
     if (strcmp((char *)data, "getReadings") == 0)
     {
-      // if it is, send current sensor readings
-      String sensorReadings = sendFFTData();
-      Serial.print(sensorReadings);
-      notifyClients(sensorReadings);
+      Serial.print(sendFFTData());
+      notifyClients(sendFFTData()); // notifyClients will delete[] sensorReadings
     }
   }
 }
@@ -145,8 +148,8 @@ void setup()
 
   server.begin();
 
-  ws.onEvent(onEvent);
-  server.addHandler(&ws);
+  websocket.onEvent(onEvent);
+  server.addHandler(&websocket);
 
   pdm.setup();
   acc.setup();
@@ -175,11 +178,10 @@ void loop()
   static unsigned long lastFFTDataSendTime = 0;
   if (millis() - lastFFTDataSendTime > 100)
   {
-    sensorReadings = sendFFTData();
-    notifyClients(sensorReadings);
+    notifyClients(sendFFTData());
     lastFFTDataSendTime = millis();
   }
-  ws.cleanupClients();
+  websocket.cleanupClients();
 // Memory debug data
 #ifdef DEBUG_STACK
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
