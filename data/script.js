@@ -56,7 +56,7 @@ function updateChart(data) {
           {
             label: "Frequency vs Magnitude",
             data: chartData, // Use the transformed chart data here
-            fill: false,
+            fill: true,
             borderColor: "rgb(75, 192, 192)",
             tension: 0.1,
           },

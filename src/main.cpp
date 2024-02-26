@@ -41,6 +41,8 @@ char *sendFFTData()
     freq[i] = i;
   }
 
+  doc.shrinkToFit();
+
   size_t neededSize = measureJson(doc) + 1; // +1 for null terminator
   char *jsonString = new char[neededSize];
 
@@ -65,12 +67,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    data[len] = 0; // Ensure null-termination
-    // Check if the message is "getReadings"
+    data[len] = 0;
     if (strcmp((char *)data, "getReadings") == 0)
     {
-      Serial.print(sendFFTData());
-      notifyClients(sendFFTData()); // notifyClients will delete[] sensorReadings
+      char *sensorReadings = sendFFTData();
+      Serial.print(sensorReadings);
+      notifyClients(sensorReadings);
     }
   }
 }
@@ -176,7 +178,7 @@ void loop()
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 100)
+  if (millis() - lastFFTDataSendTime > 1000)
   {
     notifyClients(sendFFTData());
     lastFFTDataSendTime = millis();
