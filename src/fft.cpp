@@ -8,6 +8,7 @@
 #include <global.h>
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 using namespace std;
 using namespace std::chrono;
 
@@ -22,6 +23,7 @@ double freq[samples / 2];
 double mag[samples / 2];
 micData micdata;
 accData accdata;
+fstream fout; 
 
 void fftPrint(double vReal[2048])
 {
@@ -57,30 +59,43 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
    }
 }
 
+void sendToCsv() {
+   fout.open("FFT.csv", ios::out | ios::app);
+      for (int i = 0; i < samples / 2; i++)
+   {
+      fout << accdata.accFFTData[i] << ", ";
+      fout << micdata.micFFTData[i] << ", ";
+   }
+   fout.close();
+}
+
 void saveValues(double vData[2048], double samplingFrequency) {
    if(samplingFrequency == 16000) {
       std::fill_n(micdata.micFFTData, samples/ 2, 0);
       std::copy(vData, vData+1024, micdata.micFFTData);
-      Serial.println(" \n");
-      Serial.print("MIC FFT DATA");
+      // Serial.println(" \n");
+      // Serial.print("MIC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
    {
-      Serial.print(micdata.micFFTData[i] / samples, 6);
-      Serial.print(" ");
+      // Serial.print(micdata.micFFTData[i] / samples, 6);
+      // Serial.print(" ");
    }
    }
    else {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
+      // Serial.println(" \n");
+      // Serial.print("ACC FFT DATA");
       std::fill_n(accdata.accFFTData, samples/ 2, 0);
       std::copy(vData, vData+1024, accdata.accFFTData);
       for (int i = 0; i < samples / 2; i++)
    {
-      Serial.print(accdata.accFFTData[i] / samples, 6);
-      Serial.print(" ");
+      // Serial.print(accdata.accFFTData[i] / samples, 6);
+      // Serial.print(" ");
    }
    }
+   sendToCsv();
 }
+
+
 
 // https://forum.arduino.cc/t/using-arduinofft-with-an-accelerometer-to-detect-vibration-freq/609323/8
 
