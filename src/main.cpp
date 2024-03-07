@@ -34,11 +34,11 @@ char *sendFFTData()
   JsonArray magnitude = doc["magnitude"].to<JsonArray>();
   JsonArray freq = doc["freq"].to<JsonArray>();
 
-  for (int i = 0; i < 300; i++)
+  for (int i = 0; i < 1024; i += 2)
   {
-    double magValue = floor(accdata.accFFTData[i] * 100.0) / 100.0; // Truncate to 2 decimal places
-    magnitude[i] = magValue;
-    freq[i] = i;
+    double magValue = floor((accdata.accFFTData[i]) * 100.0) / 100.0; // Average of i and i+1, truncated to 2 decimal places
+    magnitude[i / 2] = magValue;
+    freq[i / 2] = i;
   }
 
   doc.shrinkToFit();

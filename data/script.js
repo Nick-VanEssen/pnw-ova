@@ -78,6 +78,7 @@ function updateChart(data) {
               display: true,
               text: "Frequency (Hz)",
             },
+            max: 1022,
           },
         },
       },
