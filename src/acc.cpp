@@ -58,6 +58,9 @@ void ACC::ACCloop(void *pvParameters)
           yval = (event.acceleration.y);
           zval = (event.acceleration.z); // will need to change what variable is affected by gravity depending on board orientation
 
+          val = sqrt(pow(xval,2) + pow(yval,2) + pow(zval,2));
+          arr[i] = val;
+
           // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
           // Serial.print("Y: "); Serial.print(yval); Serial.print("  ");         // used to print adxl345 data
           // Serial.print("Z: "); Serial.print(zval); Serial.print("  ");
@@ -67,10 +70,9 @@ void ACC::ACCloop(void *pvParameters)
           // auto milliseconds = chrono::duration_cast< std::chrono::milliseconds >( time_span );
           // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); Serial.print(milliseconds.count()); Serial.print(" ms");
 
-          val = xval + yval + zval - SENSORS_GRAVITY_STANDARD;
-          arr[i] = zval;
           /*Take a 0.3125 ms break*/
           delay(ACC_SAMPLE_DELAY);
+          
         }
         calc(arr, 3600.0);
         xSemaphoreGive( xSemaphore );
