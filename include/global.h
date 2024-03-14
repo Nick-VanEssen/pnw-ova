@@ -1,16 +1,18 @@
 #pragma once
 
+#include "settings.h"
+
 class micData{
 private:
 public:
-    double micFFTData[1024];
+    double micFFTData[PDM_BUFFER_LEN];
     bool micFlag;
 };
 
 class accData{
 private:
 public:
-    double accFFTData[1024];
+    double accFFTData[ACC_BUFFER_LEN];
     bool accFlag;
 };
 

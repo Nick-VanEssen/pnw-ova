@@ -27,8 +27,10 @@ void fftPrint(double vReal[2048])
 {
    Serial.println(" ");
    Serial.print("Freq: ");
-   for (int i = 0; i < samples/2 ; i++) {
-      Serial.print(freq[i]); Serial.print(" ");
+   for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(freq[i]);
+      Serial.print(" ");
    }
    Serial.print("Original: ");
    for (int i = 0; i < samples; i++)
@@ -57,28 +59,33 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
    }
 }
 
-void saveValues(double vData[2048], double samplingFrequency) {
-   if(samplingFrequency == 16000) {
-      std::fill_n(micdata.micFFTData, samples/ 2, 0);
-      std::copy(vData, vData+1024, micdata.micFFTData);
-      Serial.println(" \n");
-      Serial.print("MIC FFT DATA");
-      for (int i = 0; i < samples / 2; i++)
+void saveValues(double vData[2048], double samplingFrequency)
+{
+   if (samplingFrequency == 16000)
    {
-      Serial.print(micdata.micFFTData[i] / samples, 6);
-      Serial.print(" ");
-   }
-   }
-   else {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
-      std::fill_n(accdata.accFFTData, samples/ 2, 0);
-      std::copy(vData, vData+1024, accdata.accFFTData);
+      std::fill_n(micdata.micFFTData, samples / 2, 0);
+      std::copy(vData, vData + 1024, micdata.micFFTData);
+      // Serial.println(" \n");
+      // Serial.print("MIC FFT DATA");
       for (int i = 0; i < samples / 2; i++)
-   {
-      Serial.print(accdata.accFFTData[i] / samples, 6);
-      Serial.print(" ");
+      {
+         //  Serial.print(micdata.micFFTData[i] / samples, 6);
+         //  Serial.print(" ");
+      }
    }
+   else
+   {
+      // Serial.println(" \n");
+      // Serial.print("ACC FFT DATA");
+      std::fill_n(accdata.accFFTData, samples / 2, 0);
+      std::copy(vData, vData + 1024, accdata.accFFTData);
+#ifdef PRINT_DATA
+      for (int i = 0; i < samples / 2; i++)
+      {
+         // Serial.print(accdata.accFFTData[i] / samples, 6);
+         // Serial.print(" ");
+      }
+#endif
    }
 }
 
@@ -89,7 +96,7 @@ void calc(double vReal[2048], double samplingFrequency)
    // std::copy(vReal, vReal+2048, copiedArr);
    // auto stop = high_resolution_clock::now();
    // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
-   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be inerval of .6 seconds
+   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be interval of .6 seconds
 
    FFTfunc.DCRemoval(vReal, samples);
    FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
@@ -99,6 +106,50 @@ void calc(double vReal[2048], double samplingFrequency)
    // logFreq(vReal, samples / 2, samplingFrequency);
    // fftPrint(vReal);
    saveValues(vReal, samplingFrequency);
+
    std::fill_n(vImag, samples, 0);
    std::fill_n(vReal, samples, 0);
 }
+
+// void WebSocketLog(double data)
+// {
+//    // Serial.println("Log websocket.");
+//    // Serial.printf("%d clients connected.\n", GetClientsCount());
+
+//    for (uint8_t index = 0; index < maxClients; index++)
+//    {
+//       WebsocketsClient *client = _clients[index];
+//       if (client == NULL)
+//       {
+//          continue;
+//       }
+
+//       if (!client->available() || !client->send(data))
+//       {
+//          _clients[index] = NULL;
+//          // Serial.println("Remove disconnected websocket client from Log().");
+//          client->close();
+//          delete client;
+//       }
+//    }
+// }
+
+// Websocket functions
+// void getFrequencyData(double *outArray, size_t length)
+// {
+//    for (size_t i = 0; i < length && i < samples / 2; i++)
+//    {
+//       Serial.println(" ");
+//       Serial.println("************************ARRAY DATA NEEDED************************: ");
+//       outArray[i] = accdata[i];
+//       Serial.print(accdata[i]);
+//    }
+// }
+
+// void getMagnitudeData(double *outArray, size_t length)
+// {
+//    for (size_t i = 0; i < length && i < samples / 2; i++)
+//    {
+//       outArray[i] = mag[i];
+//    }
+// }

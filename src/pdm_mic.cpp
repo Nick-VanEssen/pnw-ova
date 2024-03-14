@@ -103,7 +103,7 @@ void PDM::PDMloop(void *pvParameters)
         }
       }
     }
-  vTaskDelay(1);
+  vTaskDelay(PDM_TASK_DELAY);
   }
 }
 

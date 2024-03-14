@@ -17,8 +17,9 @@ void MON::setup()
 }
 
 void MON::MONloop(void *pvParameters)
-{  
-  while(true) {
+{
+  while (true)
+  {
     vTaskDelay(100);
   }
   /*

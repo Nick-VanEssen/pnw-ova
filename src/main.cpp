@@ -6,44 +6,116 @@
 #include "pdm_mic.h"
 #include "email.h"
 #include "settings.h"
+#include "ESPAsyncWebServer.h"
+#include <ArduinoJson.h>
 #include <acc.h>
 #include <main.h>
 #include <FFT.h>
+#include <WiFi.h>
+#include <global.h>
 #include <monitor.h>
 
 bool ledState = 0;
 const int ledPin = 2;
-high_resolution_clock::time_point start;
 
+high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
+AsyncWebServer server(80);
+AsyncWebSocket websocket("/ws");
 
-String processor(const String &var)
+// Function to send FFT data
+char *sendFFTData()
 {
-  /* Serial.println(var);
-   if (var == "STATE")
-   {
-     if (ledState)
-     {
-       return "ON";
-     }
-     else
-     {
-       return "OFF";
-     }
-   }*/
-  return String();
+  // No need to calc doc size for v7 because it is dynamic, but we need a size for char array
+  JsonDocument doc;
+
+  JsonArray magnitude = doc["magnitude"].to<JsonArray>();
+  JsonArray freq = doc["freq"].to<JsonArray>();
+
+  for (int i = 0; i < 1024; i += 2)
+  {
+    double magValue = floor((accdata.accFFTData[i]) * 100.0) / 100.0; // Average of i and i+1, truncated to 2 decimal places
+    magnitude[i / 2] = magValue;
+    freq[i / 2] = i;
+  }
+
+  doc.shrinkToFit();
+
+  size_t neededSize = measureJson(doc) + 1; // +1 for null terminator
+  char *jsonString = new char[neededSize];
+
+  // Serialize the JSON document to the char array
+  serializeJson(doc, jsonString, neededSize);
+
+  Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
+  Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+
+  // Return the JSON string. Caller is responsible for deleting it after use.
+  return jsonString;
 }
 
+void notifyClients(char *data)
+{
+  websocket.textAll(data);
+  delete[] data; // Make sure to free the allocated memory after sending
+}
 
-void startTime() {
+void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
+{
+  AwsFrameInfo *info = (AwsFrameInfo *)arg;
+  if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
+  {
+    data[len] = 0;
+    if (strcmp((char *)data, "getReadings") == 0)
+    {
+      char *sensorReadings = sendFFTData();
+      Serial.print(sensorReadings);
+      notifyClients(sensorReadings);
+    }
+  }
+}
+// WebSocket event handler
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  switch (type)
+  {
+  case WS_EVT_CONNECT:
+    Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+    break;
+  case WS_EVT_DISCONNECT:
+    Serial.printf("WebSocket client #%u disconnected\n", client->id());
+    break;
+  case WS_EVT_DATA:
+    handleWebSocketMessage(arg, data, len);
+    break;
+  case WS_EVT_PONG:
+  case WS_EVT_ERROR:
+    break;
+  }
+}
+
+void startTime()
+{
   start = high_resolution_clock::now();
 }
 
-high_resolution_clock::time_point getStartTime() {
+high_resolution_clock::time_point getStartTime()
+{
   return start;
 }
+
+// Find IP of board, set it as string to be used in index. Most likely not used anymore.
+// String processor(const String &var)
+// {
+
+//   if (var == "IPaddress")
+//   {
+//     return WiFi.localIP().toString();
+//   }
+//   return String();
+// }
 
 void setup()
 {
@@ -59,27 +131,35 @@ void setup()
   // // using ledcWrite(LED_CHANNEL, Brightness)
   ledcAttachPin(LED_PIN, LED_CHANNEL);
 
-  // // WiFi Manager
-  // bool res;
-  // wm.setConfigPortalBlocking(false);                  // don't wait for user wifi setup
-  // res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
-  // if (!res)
-  // {
-  //   Serial.println("Failed to connect"); // print results
-  // }
-  // Serial.println("Connection Successful!");
-  
+  // WiFi Manager
+  bool res;
+  wm.setConfigPortalBlocking(false);                  // don't wait for user wifi setup
+  res = wm.autoConnect("OVA WiFi Setup", "password"); // ssid and password for access point
+  if (!res)
+  {
+    Serial.println("Failed to connect");
+  }
+  else
+  {
+    Serial.println("Connection Successful!");
+  }
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/index.html", "text/html"); });
+  server.serveStatic("/", LittleFS, "/");
+
+  server.begin();
+
+  websocket.onEvent(onEvent);
+  server.addHandler(&websocket);
+
   pdm.setup();
-  Serial.print("a;ldkfja;ksdjfkl;a");
   acc.setup();
   mon.setup();
   startTime();
-
 }
 
 void emailNotification();
-
-// set variable outside loop so it doesn't get set to false every loop
 
 void loop()
 {
@@ -96,8 +176,16 @@ void loop()
   }
   wm.process();
 
-  // Memory debug data
-  #ifdef DEBUG_STACK
+  // Send fft data after 1 second
+  static unsigned long lastFFTDataSendTime = 0;
+  if (millis() - lastFFTDataSendTime > 1000)
+  {
+    notifyClients(sendFFTData());
+    lastFFTDataSendTime = millis();
+  }
+  websocket.cleanupClients();
+// Memory debug data
+#ifdef DEBUG_STACK
   if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
   {
     intervalTimer = millis();
@@ -106,7 +194,5 @@ void loop()
     pdm.printMemoryUsage();
     acc.printMemoryUsage();
   }
-  #endif
-  
+#endif
 }
-
