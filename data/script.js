@@ -57,33 +57,98 @@ function updateChart(data) {
             label: "Frequency vs Magnitude",
             data: chartData, // Use the transformed chart data here
             fill: true,
+            backgroundColor: function (context) {
+              const chart = context.chart;
+              const { ctx, chartArea } = chart;
+
+              if (!chartArea) {
+                // This case happens on initial chart load
+                return null;
+              }
+              return getGradient(ctx, chartArea);
+            },
             borderColor: "rgb(75, 192, 192)",
             tension: 0.1,
+            pointRadius: 0, // Remove data points
           },
         ],
       },
       options: {
         scales: {
           y: {
+            ticks: {
+              color: "#e5e5e5",
+              font: {
+                size: 18,
+              },
+            },
+            grid: {
+              color: "#3e3f3f",
+            },
             beginAtZero: true,
             title: {
               display: true,
               text: "Magnitude",
+              color: "#e5e5e5",
+              font: {
+                size: 18,
+              },
             },
           },
           x: {
+            ticks: {
+              color: "#e5e5e5",
+              font: {
+                size: 18,
+              },
+            },
+            grid: {
+              color: "#3e3f3f",
+            },
             type: "linear",
             position: "bottom",
             title: {
               display: true,
               text: "Frequency (Hz)",
+              color: "#e5e5e5",
+              font: {
+                size: 18,
+              },
             },
             max: 1022,
           },
         },
+        plugins: {
+          legend: {
+            display: false, // Optionally hide the legend
+          },
+        },
+        layout: {
+          padding: 20,
+        },
+        elements: {
+          line: {
+            borderWidth: 3, // Make the line thicker
+          },
+        },
+        backgroundColor: "#000000", // Dark background
       },
     });
   }
+}
+
+// Function to create a gradient
+function getGradient(ctx, chartArea) {
+  const gradient = ctx.createLinearGradient(
+    0,
+    chartArea.bottom,
+    0,
+    chartArea.top
+  );
+  gradient.addColorStop(0, "rgba(255, 0, 255, 0.2)");
+  gradient.addColorStop(0.5, "rgba(0, 255, 255, 0.2)");
+  gradient.addColorStop(1, "rgba(255, 255, 0, 0.2)");
+  return gradient;
 }
 
 // Function that receives the message from the ESP32 with the readings
