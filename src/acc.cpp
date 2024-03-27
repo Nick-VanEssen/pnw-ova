@@ -74,7 +74,9 @@ void ACC::ACCloop(void *pvParameters)
           delay(ACC_SAMPLE_DELAY);
           
         }
-        calc(arr, 3600.0);
+        print(arr);
+        // calc(arr, 3600.0);
+        std::fill_n(arr, 2048, 0);
         xSemaphoreGive( xSemaphore );
       }
     }
@@ -82,6 +84,11 @@ void ACC::ACCloop(void *pvParameters)
   }
 }
 
+void print(double arr[2048]) {
+  for(int i = 0; i<2048; i++) {
+    Serial.print(arr[i]); Serial.print(", ");
+  }
+}
 void ACC::printMemoryUsage()
 {
   Serial.printf("ACC FREE STACK: %d \n", uxTaskGetStackHighWaterMark(ACCTask));
