@@ -18,6 +18,7 @@
 bool ledState = 0;
 const int ledPin = 2;
 
+char userEmail[50];
 high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
@@ -71,11 +72,17 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     if (strcmp((char *)data, "getReadings") == 0)
     {
       char *sensorReadings = sendFFTData();
-      Serial.print(sensorReadings);
       notifyClients(sensorReadings);
+    }
+    if (strchr((char *)data, '@') != nullptr)
+    {
+      strncpy(userEmail, (char *)data, sizeof(userEmail) - 1); // Copy data into userEmail
+      userEmail[sizeof(userEmail) - 1] = '\0';                 // Ensure null-termination
+      Serial.print(userEmail);
     }
   }
 }
+
 // WebSocket event handler
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
@@ -175,6 +182,14 @@ void loop()
     _mailSent = true;
   }
   wm.process();
+
+  // use code below to send a test email every 30 seconds
+  // static unsigned long lastEmailSendTime = 0;
+  // if (millis() - lastEmailSendTime > 30000)
+  // {
+  //   mailResults.send();
+  //   lastEmailSendTime = millis();
+  // }
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;

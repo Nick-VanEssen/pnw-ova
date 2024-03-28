@@ -18,6 +18,19 @@
       p {
         color: #e5e5e5;
       }
+      label {
+        color: #e5e5e5;
+      }
+      input {
+        border: 1px solid #e5e5e5;
+        background-color: #242525;
+        color: #e5e5e5;
+      }
+      button {
+        border: 1px solid #4bc0c0;
+        background-color: #4bc0c0;
+        color: #e5e5e5;
+      }
     </style>
   </head>
   <body>
@@ -26,8 +39,13 @@
     <div style="width: 70%; margin: auto">
       <canvas id="myChart"></canvas>
     </div>
+    <br /><br />
+    <div style="width: 70%; margin: auto">
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" />
+      <button id="saveButton">Save</button>
+    </div>
 
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
   </body>

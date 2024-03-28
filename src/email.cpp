@@ -5,13 +5,13 @@
 
 // Declare the global used SMTPSession object for SMTP transport
 SMTPSession smtp;
-
 // Callback function to get the Email sending status
 void smtpCallback(SMTP_Status status);
 
-void MAILRESULTS::send(){
+void MAILRESULTS::send()
+{
 
-  //Set the network reconnection option
+  // Set the network reconnection option
   MailClient.networkReconnect(true);
 
   // Enable the debug via Serial port
@@ -33,25 +33,24 @@ void MAILRESULTS::send(){
   config.login.password = AUTHOR_PASSWORD;
   config.login.user_domain = "";
 
-  
   // Set the NTP config time
   // For times east of the Prime Meridian use 0-12
   // For times west of the Prime Meridian add 12 to the offset.
   // Ex. American/Denver GMT would be -6. 6 + 12 = 18
   // See https://en.wikipedia.org/wiki/Time_zone for a list of the GMT/UTC timezone offsets
-  
+
   config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
-  config.time.gmt_offset = 18; //cst time zone
+  config.time.gmt_offset = 18; // cst time zone
   config.time.day_light_offset = 0;
 
   // Declare the message class
   SMTP_Message message;
-
   // Set the message headers
-  message.sender.name = F("OVA Test");
+  message.sender.name = F("Open Vibration Analysis");
   message.sender.email = AUTHOR_EMAIL;
-  message.subject = F("Test Email");
-  message.addRecipient(F("Matt"), RECIPIENT_EMAIL);
+  message.subject = F("Abnormal Vibrations Detected");
+  message.addRecipient(F("User"), String(userEmail));
+  // message.addRecipient(F("User"), String(userEmail));
 
   // Send HTML message
   /*String htmlMsg = "<div style=\"color:#2f4468;\"><h1>Hello World!</h1><p>- Sent from ESP board</p></div>";
@@ -61,7 +60,7 @@ void MAILRESULTS::send(){
   message.html.transfer_encoding = Content_Transfer_Encoding::enc_7bit;*/
 
   // Send raw text message
-  String textMsg = "Hello World! - Sent from the OVA ESP32";
+  String textMsg = "Abnormal vibrations have been detected from the Open Vibration Analysis board.";
   message.text.content = textMsg.c_str();
   message.text.charSet = "us-ascii";
   message.text.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
