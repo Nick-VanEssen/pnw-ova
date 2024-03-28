@@ -9,7 +9,7 @@
 #include <settings.h>
 
 /*Initialize an instance of Adafruit_ADXL345_Unified with a unique id*/
-Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 int i = 0;
 TaskHandle_t ACCTask;
 bool flag1;
@@ -33,6 +33,7 @@ void ACC::setup()
                           &ACCTask,          /* Task handle to keep track of created task */
                           ACC_TASK_CORE);    /* pin task to core 0 */
   Serial.printf("ACC task started");
+  accel.setDataRate(ADXL345_DATARATE_3200_HZ);
   xSemaphore = xSemaphoreCreateMutex();
 }
 
@@ -40,10 +41,10 @@ void ACC::ACCloop(void *pvParameters)
 {
   while (true)
   {
-    // if (xSemaphore != NULL)
-    // {
-    //   if (xSemaphoreTake(xSemaphore, (TickType_t)10) == pdTRUE)
-    //   {
+    if (xSemaphore != NULL)
+    {
+      if (xSemaphoreTake(xSemaphore, (TickType_t)10) == pdTRUE)
+      {
         for (i = 0; i < 2048; i++)
         {
           /*Read from ADXL345 accelerometer*/
@@ -66,14 +67,13 @@ void ACC::ACCloop(void *pvParameters)
 
           /*Take a 0.3125 ms break*/
           delay(ACC_SAMPLE_DELAY);
-          
         }
-        print(arr);
-        // calc(arr, 3600.0);
+        // print(arr);
+        calc(arr, 3600.0);
         std::fill_n(arr, 2048, 0);
-        // xSemaphoreGive( xSemaphore );
-    //   }
-    // }
+        xSemaphoreGive( xSemaphore );
+      }
+    }
   vTaskDelay(ACC_LOOP_DELAY);
   }
 }

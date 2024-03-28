@@ -82,30 +82,30 @@ void emailNotification();
 
 void loop()
 {
-  vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
-  // Set as static so it is only initialized once
-  static bool _mailSent = false;
-  static unsigned long intervalTimer = millis();
+  // vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
+  // // Set as static so it is only initialized once
+  // static bool _mailSent = false;
+  // static unsigned long intervalTimer = millis();
 
-  if (!_mailSent)
-  {
-    // commented out so it doesn't send an email every time
-    // mailResults.send();
-    _mailSent = true;
-  }
-  wm.process();
+  // if (!_mailSent)
+  // {
+  //   // commented out so it doesn't send an email every time
+  //   // mailResults.send();
+  //   _mailSent = true;
+  // }
+  // wm.process();
 
-  // Memory debug data
-  #ifdef DEBUG_STACK
-  if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
-  {
-    intervalTimer = millis();
-    Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
-    Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-    pdm.printMemoryUsage();
-    acc.printMemoryUsage();
-  }
-  #endif
+  // // Memory debug data
+  // #ifdef DEBUG_STACK
+  // if (millis() - intervalTimer > DEBUG_PRINT_INTERVAL)
+  // {
+  //   intervalTimer = millis();
+  //   Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
+  //   Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+  //   pdm.printMemoryUsage();
+  //   acc.printMemoryUsage();
+  // }
+  // #endif
   
 }
 
