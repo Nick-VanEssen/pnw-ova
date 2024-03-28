@@ -16,12 +16,14 @@ bool flag1;
 bool accFlag = false;
 SemaphoreHandle_t xSemaphore = NULL;
 ACC acc;
+double val, xval, yval, zval;
+double arr[2048];
+void print(double arr[2048]);
+sensors_event_t event;
 
 void ACC::setup()
 {
-    Serial.printf("test");
   accel.begin();
-    Serial.printf("test2");
   // memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
@@ -30,33 +32,25 @@ void ACC::setup()
                           ACC_TASK_PRIORITY, /* priority of             /* priority of the task*/
                           &ACCTask,          /* Task handle to keep track of created task */
                           ACC_TASK_CORE);    /* pin task to core 0 */
-  vTaskDelay(1000);
   Serial.printf("ACC task started");
   xSemaphore = xSemaphoreCreateMutex();
 }
 
 void ACC::ACCloop(void *pvParameters)
 {
-  double val;
-  double xval;
-  double yval;
-  double zval;
-  double arr[2048];
-  Serial.print("hi");
   while (true)
   {
-    if (xSemaphore != NULL)
-    {
-      if (xSemaphoreTake(xSemaphore, (TickType_t)10) == pdTRUE)
-      {
+    // if (xSemaphore != NULL)
+    // {
+    //   if (xSemaphoreTake(xSemaphore, (TickType_t)10) == pdTRUE)
+    //   {
         for (i = 0; i < 2048; i++)
         {
           /*Read from ADXL345 accelerometer*/
-          sensors_event_t event;
           accel.getEvent(&event);
           xval = (event.acceleration.x);
           yval = (event.acceleration.y);
-          zval = (event.acceleration.z); // will need to change what variable is affected by gravity depending on board orientation
+          zval = (event.acceleration.z);
 
           val = sqrt(pow(xval,2) + pow(yval,2) + pow(zval,2));
           arr[i] = val;
@@ -77,9 +71,9 @@ void ACC::ACCloop(void *pvParameters)
         print(arr);
         // calc(arr, 3600.0);
         std::fill_n(arr, 2048, 0);
-        xSemaphoreGive( xSemaphore );
-      }
-    }
+        // xSemaphoreGive( xSemaphore );
+    //   }
+    // }
   vTaskDelay(ACC_LOOP_DELAY);
   }
 }

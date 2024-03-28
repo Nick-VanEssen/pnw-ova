@@ -69,11 +69,10 @@ void setup()
   // }
   // Serial.println("Connection Successful!");
   
-  pdm.setup();
-  Serial.print("a;ldkfja;ksdjfkl;a");
+  // pdm.setup();
   acc.setup();
-  mon.setup();
-  startTime();
+  // mon.setup();
+  // startTime();
 
 }
 
