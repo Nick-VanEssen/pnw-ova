@@ -2,14 +2,16 @@
 
 #include "settings.h"
 
-class micData{
+class micData
+{
 private:
 public:
     double micFFTData[PDM_BUFFER_LEN];
     bool micFlag;
 };
 
-class accData{
+class accData
+{
 private:
 public:
     double accFFTData[ACC_BUFFER_LEN];

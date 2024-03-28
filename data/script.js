@@ -7,10 +7,18 @@ window.addEventListener("load", onload);
 
 function onload(event) {
   initWebSocket();
+  setEmail();
 }
 
 function getReadings() {
   websocket.send("getReadings");
+}
+
+function setEmail() {
+  document.getElementById("saveButton").addEventListener("click", function () {
+    var userEmail = document.getElementById("email").value; // Retrieve email value
+    websocket.send(userEmail);
+  });
 }
 
 function initWebSocket() {
