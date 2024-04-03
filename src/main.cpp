@@ -16,6 +16,7 @@
 #include <monitor.h>
 
 bool ledState = 0;
+// bool badDataFlag = 0;
 const int ledPin = 2;
 
 char userEmail[50] = "open.vibration.analysis@gmail.com"; // Default before one is set on frontend
@@ -23,6 +24,7 @@ high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
+// goodAccData goodaccdata;
 AsyncWebServer server(80);
 AsyncWebSocket websocket("/ws");
 
@@ -153,7 +155,12 @@ void setup()
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", "text/html"); });
-  server.serveStatic("/", LittleFS, "/");
+
+  server.on("/favicon.png", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/favicon.png", "image/png"); });
+
+  server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/script.js", "text/javascript"); });
 
   server.begin();
 
@@ -166,22 +173,46 @@ void setup()
   startTime();
 }
 
-void emailNotification();
+// void emailNotification()
+// {
+//   for (int i = 0; i < 1024; i++)
+//   {
+//     if (accdata.accFFTData[i] < 180 && accdata.accFFTData[i] > 0.00009)
+//     {
+//       if (((accdata.accFFTData[i] / 2048) > ((goodaccdata.goodData[i]) * 3)) || ((accdata.accFFTData[i] / 2048) < ((goodaccdata.goodData[i]) * 0.1)))
+//       {
+//         badDataFlag = 1;
+//         Serial.print("Bad Data Detected! Data Range Expected: ");
+//         Serial.print(goodaccdata.goodData[i] * 0.7, 6);
+//         Serial.print("-");
+//         Serial.print(goodaccdata.goodData[i] * 1.3, 6);
+//         Serial.print(" -----> ");
+//         Serial.print("Data Received: ");
+//         Serial.print(accdata.accFFTData[i] / 2048, 6);
+//         Serial.print("\n");
+//       }
+//     }
+//   }
+//   if (badDataFlag == 1)
+//   {
+//     // mailResults.send();
+//     badDataFlag = 0;
+//   }
+// }
 
 void loop()
 {
   vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
   // Set as static so it is only initialized once
-  static bool _mailSent = false;
-  static unsigned long intervalTimer = millis();
 
-  if (!_mailSent)
-  {
-    // Commented out so it doesn't send an email every loop. This is where logic will go for sending an email after abnormal data is detected.
-    // mailResults.send();
-    _mailSent = true;
-  }
   wm.process();
+
+  // static unsigned long lastEmailSendTime = 0;
+  // if (millis() - lastEmailSendTime > 5000)
+  // {
+  //   emailNotification();
+  //   lastEmailSendTime = millis();
+  // }
 
   // Use code below to send a test email every 30 seconds
   // static unsigned long lastEmailSendTime = 0;

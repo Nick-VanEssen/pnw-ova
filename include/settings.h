@@ -17,11 +17,11 @@
 
 // The sign in credentials
 #define AUTHOR_EMAIL "open.vibration.analysis@gmail.com"
-#define AUTHOR_PASSWORD "uiea whvy jzve qplh"
+#define AUTHOR_PASSWORD "eruu hmqq mpab vxzp"
 
 // Recipient's email
-#define RECIPIENT_EMAIL "test@test.com"
-extern char userEmail[]; // Dynamic variable from front end
+#define RECIPIENT_EMAIL "test@test.com" // Not using anymore
+extern char userEmail[];                // Dynamic variable from front end
 // #####################################################//
 ////////////////////////PDM MIC SETTINGS/////////////////
 // #define DEBUG_PDM_SERIAL true
@@ -73,4 +73,4 @@ extern char userEmail[]; // Dynamic variable from front end
                          // #####################################################//
 
 // uncomment to print the raw data to the serial terminal (Consumes significant resources)
-// #define PRINT_DATA
+#define PRINT_DATA

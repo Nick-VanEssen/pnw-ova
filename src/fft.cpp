@@ -14,7 +14,11 @@ using namespace std::chrono;
 // http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
 arduinoFFT FFTfunc = arduinoFFT();
-
+bool badDataFlag = 0;
+int alertCounter = 0;
+int averagedDataSets = 0;
+bool beginAverage = 1;
+goodAccData goodaccdata;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
 double vImag[samples];
@@ -59,6 +63,87 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
    }
 }
 
+void emailNotification()
+{
+   if (averagedDataSets < 50)
+   {
+      for (int i = 0; i < 1024; i++)
+      {
+         if ((accdata.accFFTData[i] / 2048) > .025)
+         {
+            Serial.print("\n");
+            Serial.print(accdata.accFFTData[i]);
+            Serial.print("Out of range!");
+            Serial.print("\n");
+            beginAverage = 0;
+            break;
+         }
+      }
+      if (beginAverage == 1)
+      {
+         Serial.print("\n");
+         Serial.print("Averaging...");
+         for (int i = 0; i < 1024; i++)
+         {
+            goodaccdata.goodData[i] += (accdata.accFFTData[i] / 2048);
+         }
+         averagedDataSets++;
+      }
+      Serial.print("\n");
+      Serial.print(averagedDataSets);
+      Serial.print("\n");
+      beginAverage = 1;
+   }
+   if (averagedDataSets == 50)
+   {
+      for (int i = 0; i < 1024; i++)
+      {
+         // Serial.print(goodaccdata.goodData[i] / 50, 6);
+         // Serial.print(", ");
+         // || ((accdata.accFFTData[i] / 2048) < ((goodaccdata.goodData[i]) * 0.00001))
+         if (((accdata.accFFTData[i] / 2048) > ((goodaccdata.goodData[i]) * 1.01)))
+         {
+            badDataFlag = 1;
+            Serial.print("\n");
+            Serial.print("Bad Data Detected! Data Range Expected: ");
+            Serial.print(goodaccdata.goodData[i] * 0.7, 6);
+            Serial.print("-");
+            Serial.print(goodaccdata.goodData[i] * 1.3, 6);
+            Serial.print(" -----> ");
+            Serial.print("Data Received: ");
+            Serial.print(accdata.accFFTData[i] / 2048, 6);
+            Serial.print(" at array index: ");
+            Serial.print(i);
+         }
+      }
+
+      if (badDataFlag == 0)
+      {
+         Serial.print("\n");
+         Serial.print("-------------Data passed check--------------");
+         Serial.print("\n");
+         alertCounter = 0;
+      }
+      if (badDataFlag == 1)
+      {
+         alertCounter++;
+         Serial.print("\n");
+         Serial.print("Alert counter at: ");
+         Serial.print(alertCounter);
+         Serial.print("/5");
+         Serial.print("\n");
+         if (alertCounter == 5)
+         {
+            Serial.print("\n");
+            Serial.print("!-!-!-!-!-!-!-!-DATA FAILED CHECK, SENDING ALERT-!-!-!-!-!-!-!-!");
+            Serial.print("\n");
+            // mailResults.send();
+         }
+         badDataFlag = 0;
+      }
+   }
+}
+
 void saveValues(double vData[2048], double samplingFrequency)
 {
    if (samplingFrequency == 16000)
@@ -79,6 +164,7 @@ void saveValues(double vData[2048], double samplingFrequency)
       // Serial.print("ACC FFT DATA");
       std::fill_n(accdata.accFFTData, samples / 2, 0);
       std::copy(vData, vData + 1024, accdata.accFFTData);
+
 #ifdef PRINT_DATA
       for (int i = 0; i < samples / 2; i++)
       {
@@ -86,6 +172,7 @@ void saveValues(double vData[2048], double samplingFrequency)
          // Serial.print(" ");
       }
 #endif
+      emailNotification();
    }
 }
 
@@ -110,46 +197,3 @@ void calc(double vReal[2048], double samplingFrequency)
    std::fill_n(vImag, samples, 0);
    std::fill_n(vReal, samples, 0);
 }
-
-// void WebSocketLog(double data)
-// {
-//    // Serial.println("Log websocket.");
-//    // Serial.printf("%d clients connected.\n", GetClientsCount());
-
-//    for (uint8_t index = 0; index < maxClients; index++)
-//    {
-//       WebsocketsClient *client = _clients[index];
-//       if (client == NULL)
-//       {
-//          continue;
-//       }
-
-//       if (!client->available() || !client->send(data))
-//       {
-//          _clients[index] = NULL;
-//          // Serial.println("Remove disconnected websocket client from Log().");
-//          client->close();
-//          delete client;
-//       }
-//    }
-// }
-
-// Websocket functions
-// void getFrequencyData(double *outArray, size_t length)
-// {
-//    for (size_t i = 0; i < length && i < samples / 2; i++)
-//    {
-//       Serial.println(" ");
-//       Serial.println("************************ARRAY DATA NEEDED************************: ");
-//       outArray[i] = accdata[i];
-//       Serial.print(accdata[i]);
-//    }
-// }
-
-// void getMagnitudeData(double *outArray, size_t length)
-// {
-//    for (size_t i = 0; i < length && i < samples / 2; i++)
-//    {
-//       outArray[i] = mag[i];
-//    }
-// }
