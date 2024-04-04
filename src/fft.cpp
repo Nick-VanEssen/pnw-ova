@@ -19,6 +19,7 @@ bool badDataFlag = 0;
 int alertCounter = 0;
 int averagedDataSets = 0;
 bool beginAverage = 1;
+bool hardCodedAlgorithmFlag = 0;
 goodAccData goodaccdata;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
@@ -66,6 +67,7 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void emailNotification()
 {
+
    if (averagedDataSets < 50)
    {
       for (int i = 0; i < 1024; i++)
@@ -173,7 +175,10 @@ void saveValues(double vData[2048], double samplingFrequency)
          // Serial.print(" ");
       }
 #endif
-      emailNotification();
+      if (hardCodedAlgorithmFlag = 1)
+      {
+         emailNotification();
+      }
    }
 }
 
