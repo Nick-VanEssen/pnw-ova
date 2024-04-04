@@ -160,10 +160,10 @@ void setup()
   websocket.onEvent(onEvent);
   server.addHandler(&websocket);
 
-  pdm.setup();
+  // pdm.setup();
   acc.setup();
-  mon.setup();
-  startTime();
+  // mon.setup();
+  // startTime();
 }
 
 void emailNotification();
@@ -172,7 +172,7 @@ void loop()
 {
   // vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
   // // Set as static so it is only initialized once
-  // static bool _mailSent = false;
+  static bool _mailSent = false;
   // static unsigned long intervalTimer = millis();
 
   if (!_mailSent)
