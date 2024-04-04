@@ -69,7 +69,6 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void emailNotification()
 {
-
    if (averagedDataSets < 50)
    {
       for (int i = 0; i < 1024; i++)
@@ -174,7 +173,7 @@ void saveValues(double vData[2048], double samplingFrequency)
          Serial.print(accdata.accFFTData[i] / samples, 6);
          Serial.print(", ");
       }
-      if (hardCodedAlgorithmFlag = 1)
+      if (hardCodedAlgorithmFlag == 1)
       {
          emailNotification();
       }
