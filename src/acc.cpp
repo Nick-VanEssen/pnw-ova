@@ -53,7 +53,7 @@ void ACC::ACCloop(void *pvParameters)
           yval = (event.acceleration.y);
           zval = (event.acceleration.z);
 
-          val = sqrt(pow(xval,2) + pow(yval,2) + pow(zval,2));
+          val = sqrt(pow(xval, 2) + pow(yval, 2) + pow(zval, 2));
           arr[i] = val;
 
           // Serial.print("X: "); Serial.print(xval); Serial.print("  ");
@@ -71,16 +71,19 @@ void ACC::ACCloop(void *pvParameters)
         // print(arr);
         calc(arr, 3600.0);
         std::fill_n(arr, 2048, 0);
-        xSemaphoreGive( xSemaphore );
+        xSemaphoreGive(xSemaphore);
       }
     }
-  vTaskDelay(ACC_LOOP_DELAY);
+    vTaskDelay(ACC_LOOP_DELAY);
   }
 }
 
-void print(double arr[2048]) {
-  for(int i = 0; i<2048; i++) {
-    Serial.print(arr[i]); Serial.print(", ");
+void print(double arr[2048])
+{
+  for (int i = 0; i < 2048; i++)
+  {
+    Serial.print(arr[i]);
+    Serial.print(", ");
   }
 }
 void ACC::printMemoryUsage()

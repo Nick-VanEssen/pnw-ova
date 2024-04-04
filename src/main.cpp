@@ -80,6 +80,14 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       userEmail[sizeof(userEmail) - 1] = '\0';                 // Ensure null-termination
       Serial.print(userEmail);
     }
+    if (strcmp((char *)data, "Start") == 0)
+    {
+      stopstarttoggle.stopStartFlag = 1;
+    }
+    if (strcmp((char *)data, "Stop") == 0)
+    {
+      stopstarttoggle.stopStartFlag = 0;
+    }
   }
 }
 
@@ -153,7 +161,12 @@ void setup()
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(LittleFS, "/index.html", "text/html"); });
-  server.serveStatic("/", LittleFS, "/");
+
+  server.on("/favicon.png", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/favicon.png", "image/png"); });
+
+  server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(LittleFS, "/script.js", "text/javascript"); });
 
   server.begin();
 
@@ -166,22 +179,19 @@ void setup()
   // startTime();
 }
 
-void emailNotification();
-
 void loop()
 {
-  // vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
-  // // Set as static so it is only initialized once
-  static bool _mailSent = false;
-  // static unsigned long intervalTimer = millis();
+  vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
+  // Set as static so it is only initialized once
 
-  if (!_mailSent)
-  {
-    // Commented out so it doesn't send an email every loop. This is where logic will go for sending an email after abnormal data is detected.
-    // mailResults.send();
-    _mailSent = true;
-  }
   wm.process();
+
+  // static unsigned long lastEmailSendTime = 0;
+  // if (millis() - lastEmailSendTime > 5000)
+  // {
+  //   emailNotification();
+  //   lastEmailSendTime = millis();
+  // }
 
   // Use code below to send a test email every 30 seconds
   // static unsigned long lastEmailSendTime = 0;
@@ -193,7 +203,7 @@ void loop()
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 1000)
+  if (millis() - lastFFTDataSendTime > 1000 && stopstarttoggle.stopStartFlag == 1)
   {
     notifyClients(sendFFTData());
     lastFFTDataSendTime = millis();
