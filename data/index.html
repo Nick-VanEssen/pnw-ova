@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OVA Web Server</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+        background-color: #242525;
+      }
+      h1 {
+        color: #e5e5e5;
+      }
+      p {
+        color: #e5e5e5;
+      }
+      label {
+        color: #e5e5e5;
+      }
+      input {
+        border: 1px solid #e5e5e5;
+        background-color: #242525;
+        color: #e5e5e5;
+      }
+      button {
+        border: 1px solid #4bc0c0;
+        background-color: #4bc0c0;
+        color: #e5e5e5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to the Open Vibration Analysis Web Server!</h1>
+    <p>This chart shows data read from the Open Vibration Analysis board.</p>
+    <div style="width: 70%; margin: auto">
+      <canvas id="myChart"></canvas>
+    </div>
+    <br /><br />
+    <div style="width: 70%; margin: auto">
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" />
+      <button id="saveButton">Save</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
