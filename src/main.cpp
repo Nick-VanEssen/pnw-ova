@@ -173,10 +173,10 @@ void setup()
   websocket.onEvent(onEvent);
   server.addHandler(&websocket);
 
-  pdm.setup();
+  // pdm.setup();
   acc.setup();
-  mon.setup();
-  startTime();
+  // mon.setup();
+  // startTime();
 }
 
 void loop()
