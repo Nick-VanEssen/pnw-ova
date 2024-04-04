@@ -16,7 +16,6 @@
 #include <monitor.h>
 
 bool ledState = 0;
-// bool badDataFlag = 0;
 const int ledPin = 2;
 
 char userEmail[50] = "open.vibration.analysis@gmail.com"; // Default before one is set on frontend
@@ -24,7 +23,6 @@ high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
 MAILRESULTS mailResults;
-// goodAccData goodaccdata;
 AsyncWebServer server(80);
 AsyncWebSocket websocket("/ws");
 
@@ -81,6 +79,14 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       strncpy(userEmail, (char *)data, sizeof(userEmail) - 1); // Copy data into userEmail
       userEmail[sizeof(userEmail) - 1] = '\0';                 // Ensure null-termination
       Serial.print(userEmail);
+    }
+    if (strcmp((char *)data, "Start") == 0)
+    {
+      stopstarttoggle.stopStartFlag = 1;
+    }
+    if (strcmp((char *)data, "Stop") == 0)
+    {
+      stopstarttoggle.stopStartFlag = 0;
     }
   }
 }
@@ -173,33 +179,6 @@ void setup()
   startTime();
 }
 
-// void emailNotification()
-// {
-//   for (int i = 0; i < 1024; i++)
-//   {
-//     if (accdata.accFFTData[i] < 180 && accdata.accFFTData[i] > 0.00009)
-//     {
-//       if (((accdata.accFFTData[i] / 2048) > ((goodaccdata.goodData[i]) * 3)) || ((accdata.accFFTData[i] / 2048) < ((goodaccdata.goodData[i]) * 0.1)))
-//       {
-//         badDataFlag = 1;
-//         Serial.print("Bad Data Detected! Data Range Expected: ");
-//         Serial.print(goodaccdata.goodData[i] * 0.7, 6);
-//         Serial.print("-");
-//         Serial.print(goodaccdata.goodData[i] * 1.3, 6);
-//         Serial.print(" -----> ");
-//         Serial.print("Data Received: ");
-//         Serial.print(accdata.accFFTData[i] / 2048, 6);
-//         Serial.print("\n");
-//       }
-//     }
-//   }
-//   if (badDataFlag == 1)
-//   {
-//     // mailResults.send();
-//     badDataFlag = 0;
-//   }
-// }
-
 void loop()
 {
   vTaskDelay(MAIN_LOOP_DELAY / portTICK_PERIOD_MS);
@@ -224,7 +203,7 @@ void loop()
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
-  if (millis() - lastFFTDataSendTime > 1000)
+  if (millis() - lastFFTDataSendTime > 1000 && stopstarttoggle.stopStartFlag == 1)
   {
     notifyClients(sendFFTData());
     lastFFTDataSendTime = millis();

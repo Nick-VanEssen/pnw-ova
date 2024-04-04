@@ -14,6 +14,7 @@ using namespace std::chrono;
 // http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
 arduinoFFT FFTfunc = arduinoFFT();
+stopStartToggle stopstarttoggle;
 bool badDataFlag = 0;
 int alertCounter = 0;
 int averagedDataSets = 0;
@@ -180,20 +181,24 @@ void saveValues(double vData[2048], double samplingFrequency)
 
 void calc(double vReal[2048], double samplingFrequency)
 {
-   // std::copy(vReal, vReal+2048, copiedArr);
-   // auto stop = high_resolution_clock::now();
-   // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
-   // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be interval of .6 seconds
+   if (stopstarttoggle.stopStartFlag == 1)
+   {
 
-   FFTfunc.DCRemoval(vReal, samples);
-   FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-   FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
-   FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
+      // std::copy(vReal, vReal+2048, copiedArr);
+      // auto stop = high_resolution_clock::now();
+      // duration<double> time_span = duration_cast<duration<double>>(stop - getStartTime());
+      // Serial.print("Time: "); Serial.print(time_span.count()); Serial.print(" sec/ "); //should be interval of .6 seconds
 
-   // logFreq(vReal, samples / 2, samplingFrequency);
-   // fftPrint(vReal);
-   saveValues(vReal, samplingFrequency);
+      FFTfunc.DCRemoval(vReal, samples);
+      FFTfunc.Windowing(vReal, samples, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+      FFTfunc.Compute(vReal, vImag, samples, FFT_FORWARD); // Compute FFT
+      FFTfunc.ComplexToMagnitude(vReal, vImag, samples);   // Compute magnitudes
 
-   std::fill_n(vImag, samples, 0);
-   std::fill_n(vReal, samples, 0);
+      // logFreq(vReal, samples / 2, samplingFrequency);
+      // fftPrint(vReal);
+      saveValues(vReal, samplingFrequency);
+
+      std::fill_n(vImag, samples, 0);
+      std::fill_n(vReal, samples, 0);
+   }
 }

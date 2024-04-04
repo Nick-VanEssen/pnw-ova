@@ -19,9 +19,7 @@ ACC acc;
 
 void ACC::setup()
 {
-    Serial.printf("test");
   accel.begin();
-    Serial.printf("test2");
   // memset(arr, 0, sizeof(arr));
   xTaskCreatePinnedToCore(ACCloop,           /* Task function. */
                           "ACCTask",         /* name of task. */
@@ -73,10 +71,10 @@ void ACC::ACCloop(void *pvParameters)
           delay(ACC_SAMPLE_DELAY);
         }
         calc(arr, 3600.0);
-        xSemaphoreGive( xSemaphore );
+        xSemaphoreGive(xSemaphore);
       }
     }
-  vTaskDelay(ACC_LOOP_DELAY);
+    vTaskDelay(ACC_LOOP_DELAY);
   }
 }
 

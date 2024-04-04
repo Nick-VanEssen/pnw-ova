@@ -1,9 +1,14 @@
 //var gateway = `ws://${window.location.hostname}/ws`;
 var gateway = `ws://${window.location.hostname}/ws`;
+var stopStartButton = document.getElementById("stopstartbutton");
+var statusHeader = document.getElementById("highlight");
+
 console.log(gateway);
 var websocket;
 // Init web socket when the page loads
 window.addEventListener("load", onload);
+
+stopStartButton.addEventListener("click", Start);
 
 function onload(event) {
   initWebSocket();
@@ -19,6 +24,26 @@ function setEmail() {
     var userEmail = document.getElementById("email").value; // Retrieve email value
     websocket.send(userEmail);
   });
+}
+
+function Start() {
+  console.log("Started");
+  stopStartButton.removeEventListener("click", Start);
+  stopStartButton.addEventListener("click", Stop);
+  stopStartButton.value = "Stop";
+  statusHeader.innerText = "Running";
+  statusHeader.style.color = "#00b300";
+  websocket.send("Start");
+}
+
+function Stop() {
+  console.log("Stopped");
+  stopStartButton.removeEventListener("click", Stop);
+  stopStartButton.addEventListener("click", Start);
+  stopStartButton.value = "Start";
+  statusHeader.innerText = "Stopped";
+  statusHeader.style.color = "#b30000";
+  websocket.send("Stop");
 }
 
 function initWebSocket() {

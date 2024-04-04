@@ -10,17 +10,16 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        text-align: center;
         margin-top: 50px;
         background-color: #242525;
-      }
-      h1 {
         color: #e5e5e5;
+        text-align: center;
       }
-      p {
-        color: #e5e5e5;
-      }
-      label {
+      h1,
+      p,
+      label,
+      input,
+      button {
         color: #e5e5e5;
       }
       input {
@@ -33,10 +32,38 @@
         background-color: #4bc0c0;
         color: #242525;
       }
+      #headerdiv {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+      }
+
+      #mainheader {
+        flex-grow: 1;
+        text-align: center;
+      }
+
+      #statusheader {
+        position: absolute;
+        right: 10px;
+        top: 0;
+      }
+      #highlight {
+        color: #b30000; /* Or any other color you prefer */
+      }
+      #stopstartbutton {
+        padding: 10px 30px;
+        font-size: 20px;
+      }
     </style>
   </head>
   <body>
-    <h1>Welcome to the Open Vibration Analysis Web Server!</h1>
+    <div id="headerdiv">
+      <h1 id="mainheader">
+        Welcome to the Open Vibration Analysis Web Server!
+      </h1>
+      <h1 id="statusheader">Status: <span id="highlight">Stopped</span></h1>
+    </div>
     <p>This chart shows data read from the Open Vibration Analysis board.</p>
     <div style="width: 70%; margin: auto">
       <canvas id="myChart"></canvas>
@@ -46,6 +73,10 @@
       <label for="email">Email:</label>
       <input type="text" id="email" name="email" />
       <button id="saveButton">Save</button>
+    </div>
+    <br /><br />
+    <div style="width: 70%; margin: auto">
+      <input type="button" id="stopstartbutton" value="Start" />
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
