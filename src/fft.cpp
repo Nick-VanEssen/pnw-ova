@@ -20,7 +20,7 @@ bool badDataFlag = 0;
 int alertCounter = 0;
 int averagedDataSets = 0;
 bool beginAverage = 1;
-bool hardCodedAlgorithmFlag = 0;
+bool hardCodedAlgorithmFlag = 1;
 goodAccData goodaccdata;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
@@ -73,7 +73,7 @@ void emailNotification()
    {
       for (int i = 0; i < 1024; i++)
       {
-         if ((accdata.accFFTData[i] / 2048) > .025)
+         if ((accdata.accFFTData[i]) > .02)
          {
             Serial.print("\n");
             Serial.print(accdata.accFFTData[i]);
@@ -89,7 +89,7 @@ void emailNotification()
          Serial.print("Averaging...");
          for (int i = 0; i < 1024; i++)
          {
-            goodaccdata.goodData[i] += (accdata.accFFTData[i] / 2048);
+            goodaccdata.goodData[i] += (accdata.accFFTData[i]);
          }
          averagedDataSets++;
       }
@@ -104,18 +104,18 @@ void emailNotification()
       {
          // Serial.print(goodaccdata.goodData[i] / 50, 6);
          // Serial.print(", ");
-         // || ((accdata.accFFTData[i] / 2048) < ((goodaccdata.goodData[i]) * 0.00001))
-         if (((accdata.accFFTData[i] / 2048) > ((goodaccdata.goodData[i]) * 1.01)))
+         // || ((accdata.accFFTData[i]) < ((goodaccdata.goodData[i]) * 0.00001))
+         if (((accdata.accFFTData[i]) > ((goodaccdata.goodData[i] / 50) * 5)))
          {
             badDataFlag = 1;
             Serial.print("\n");
             Serial.print("Bad Data Detected! Data Range Expected: ");
-            Serial.print(goodaccdata.goodData[i] * 0.7, 6);
+            Serial.print(goodaccdata.goodData[i] / 50, 6);
             Serial.print("-");
-            Serial.print(goodaccdata.goodData[i] * 1.3, 6);
+            Serial.print((goodaccdata.goodData[i] / 50) * 5, 6);
             Serial.print(" -----> ");
             Serial.print("Data Received: ");
-            Serial.print(accdata.accFFTData[i] / 2048, 6);
+            Serial.print(accdata.accFFTData[i], 6);
             Serial.print(" at array index: ");
             Serial.print(i);
          }
@@ -207,7 +207,7 @@ void calc(double vReal[2048], double samplingFrequency)
       // logFreq(vReal, samples / 2, samplingFrequency);
       // fftPrint(vReal);
       saveValues(vReal, samplingFrequency);
-      printValues();
+      // printValues();
 
       std::fill_n(vImag, samples, 0);
       std::fill_n(vReal, samples, 0);

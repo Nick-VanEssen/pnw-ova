@@ -37,7 +37,7 @@ char *sendFFTData()
 
   for (int i = 0; i < 1024; i += 2)
   {
-    double magValue = floor((accdata.accFFTData[i]) * 100.0) / 100.0; // Average of i and i+1, truncated to 2 decimal places
+    double magValue = accdata.accFFTData[i]; // Average of i and i+1, truncated to 2 decimal places
     magnitude[i / 2] = magValue;
     freq[i / 2] = i;
   }
