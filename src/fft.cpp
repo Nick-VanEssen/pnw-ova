@@ -69,7 +69,6 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void emailNotification()
 {
-
    if (averagedDataSets < 50)
    {
       for (int i = 0; i < 1024; i++)
