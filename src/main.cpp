@@ -50,8 +50,8 @@ char *sendFFTData()
   // Serialize the JSON document to the char array
   serializeJson(doc, jsonString, neededSize);
 
-  Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
-  Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+  // Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
+  // Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
 
   // Return the JSON string. Caller is responsible for deleting it after use.
   return jsonString;

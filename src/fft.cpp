@@ -151,33 +151,40 @@ void emailNotification()
 
 void saveValues(double vData[2048], double samplingFrequency)
 {
-   if (samplingFrequency == 16000)
+   // if (samplingFrequency == 16000)
+   // {
+   //    std::fill_n(micdata.micFFTData, samples / 2, 0);
+   //    std::copy(vData, vData + 1024, micdata.micFFTData);
+   //    // Serial.println(" \n");
+   //    // Serial.print("MIC FFT DATA");                      for pdm mic we do not need
+   //    for (int i = 0; i < samples / 2; i++)
+   //    {
+   //       // Serial.print(micdata.micFFTData[i] / samples, 6);
+   //       // Serial.print(" ");
+   //    }
+   // }
+   // else
+   // {
+   Serial.println(" \n");
+   std::fill_n(accdata.accFFTData, samples / 2, 0);
+   for (int i = 0; i < samples / 2; i++)
    {
-      std::fill_n(micdata.micFFTData, samples / 2, 0);
-      std::copy(vData, vData + 1024, micdata.micFFTData);
-      // Serial.println(" \n");
-      // Serial.print("MIC FFT DATA");
-      for (int i = 0; i < samples / 2; i++)
-      {
-         // Serial.print(micdata.micFFTData[i] / samples, 6);
-         // Serial.print(" ");
-      }
+      accdata.accFFTData[i] = vData[i] / samples;
    }
-   else
+
+   if (hardCodedAlgorithmFlag == 1)
    {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
-      std::fill_n(accdata.accFFTData, samples / 2, 0);
-      std::copy(vData, vData + 1024, accdata.accFFTData);
-      for (int i = 0; i < samples / 2; i++)
-      {
-         Serial.print(accdata.accFFTData[i] / samples, 6);
-         Serial.print(", ");
-      }
-      if (hardCodedAlgorithmFlag = 1)
-      {
-         emailNotification();
-      }
+      emailNotification();
+   }
+   // }
+}
+
+void printValues()
+{
+   for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(accdata.accFFTData[i], 6);
+      Serial.print(", ");
    }
 }
 
@@ -201,6 +208,7 @@ void calc(double vReal[2048], double samplingFrequency)
       // logFreq(vReal, samples / 2, samplingFrequency);
       // fftPrint(vReal);
       saveValues(vReal, samplingFrequency);
+      printValues();
 
       std::fill_n(vImag, samples, 0);
       std::fill_n(vReal, samples, 0);
