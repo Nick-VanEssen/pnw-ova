@@ -4,7 +4,6 @@
 #include <LittleFS.h>
 #include <WiFiManager.h>
 #include "pdm_mic.h"
-#include "email.h"
 #include "settings.h"
 #include "ESPAsyncWebServer.h"
 #include <ArduinoJson.h>
@@ -22,7 +21,6 @@ char userEmail[50] = "open.vibration.analysis@gmail.com"; // Default before one 
 high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
-MAILRESULTS mailResults;
 AsyncWebServer server(80);
 AsyncWebSocket websocket("/ws");
 
@@ -185,21 +183,6 @@ void loop()
   // Set as static so it is only initialized once
 
   wm.process();
-
-  // static unsigned long lastEmailSendTime = 0;
-  // if (millis() - lastEmailSendTime > 5000)
-  // {
-  //   emailNotification();
-  //   lastEmailSendTime = millis();
-  // }
-
-  // Use code below to send a test email every 30 seconds
-  // static unsigned long lastEmailSendTime = 0;
-  // if (millis() - lastEmailSendTime > 30000)
-  // {
-  //   mailResults.send();
-  //   lastEmailSendTime = millis();
-  // }
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;

@@ -75,7 +75,7 @@ void emailNotification()
    {
       for (int i = 0; i < 1024; i++)
       {
-         if ((accdata.accFFTData[i]) > .02)
+         if ((accdata.accFFTData[i]) > .1)
          {
             Serial.print("\n");
             Serial.print(accdata.accFFTData[i]);
