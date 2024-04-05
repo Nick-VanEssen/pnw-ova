@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <email.h>
 using namespace std;
 using namespace std::chrono;
 
@@ -30,6 +31,7 @@ double mag[samples / 2];
 micData micdata;
 accData accdata;
 fstream fout;
+MAILRESULTS mailResults;
 
 void fftPrint(double vReal[2048])
 {
