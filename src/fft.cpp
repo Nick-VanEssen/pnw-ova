@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <email.h>
 using namespace std;
 using namespace std::chrono;
 
@@ -20,7 +21,7 @@ bool badDataFlag = 0;
 int alertCounter = 0;
 int averagedDataSets = 0;
 bool beginAverage = 1;
-bool hardCodedAlgorithmFlag = 0;
+bool hardCodedAlgorithmFlag = 1;
 goodAccData goodaccdata;
 const uint16_t samples = 2048;
 // double copiedArr[samples];
@@ -30,6 +31,7 @@ double mag[samples / 2];
 micData micdata;
 accData accdata;
 fstream fout;
+MAILRESULTS mailResults;
 
 void fftPrint(double vReal[2048])
 {
@@ -73,7 +75,7 @@ void emailNotification()
    {
       for (int i = 0; i < 1024; i++)
       {
-         if ((accdata.accFFTData[i] / 2048) > .025)
+         if ((accdata.accFFTData[i]) > .1)
          {
             Serial.print("\n");
             Serial.print(accdata.accFFTData[i]);
@@ -89,7 +91,7 @@ void emailNotification()
          Serial.print("Averaging...");
          for (int i = 0; i < 1024; i++)
          {
-            goodaccdata.goodData[i] += (accdata.accFFTData[i] / 2048);
+            goodaccdata.goodData[i] += (accdata.accFFTData[i]);
          }
          averagedDataSets++;
       }
@@ -104,18 +106,18 @@ void emailNotification()
       {
          // Serial.print(goodaccdata.goodData[i] / 50, 6);
          // Serial.print(", ");
-         // || ((accdata.accFFTData[i] / 2048) < ((goodaccdata.goodData[i]) * 0.00001))
-         if (((accdata.accFFTData[i] / 2048) > ((goodaccdata.goodData[i]) * 1.01)))
+         // || ((accdata.accFFTData[i]) < ((goodaccdata.goodData[i]) * 0.00001))
+         if (((accdata.accFFTData[i]) > ((goodaccdata.goodData[i] / 50) * 5)))
          {
             badDataFlag = 1;
             Serial.print("\n");
             Serial.print("Bad Data Detected! Data Range Expected: ");
-            Serial.print(goodaccdata.goodData[i] * 0.7, 6);
+            Serial.print(goodaccdata.goodData[i] / 50, 6);
             Serial.print("-");
-            Serial.print(goodaccdata.goodData[i] * 1.3, 6);
+            Serial.print((goodaccdata.goodData[i] / 50) * 5, 6);
             Serial.print(" -----> ");
             Serial.print("Data Received: ");
-            Serial.print(accdata.accFFTData[i] / 2048, 6);
+            Serial.print(accdata.accFFTData[i], 6);
             Serial.print(" at array index: ");
             Serial.print(i);
          }
@@ -150,33 +152,40 @@ void emailNotification()
 
 void saveValues(double vData[2048], double samplingFrequency)
 {
-   if (samplingFrequency == 16000)
+   // if (samplingFrequency == 16000)
+   // {
+   //    std::fill_n(micdata.micFFTData, samples / 2, 0);
+   //    std::copy(vData, vData + 1024, micdata.micFFTData);
+   //    // Serial.println(" \n");
+   //    // Serial.print("MIC FFT DATA");                      for pdm mic we do not need
+   //    for (int i = 0; i < samples / 2; i++)
+   //    {
+   //       // Serial.print(micdata.micFFTData[i] / samples, 6);
+   //       // Serial.print(" ");
+   //    }
+   // }
+   // else
+   // {
+   Serial.println(" \n");
+   std::fill_n(accdata.accFFTData, samples / 2, 0);
+   for (int i = 0; i < samples / 2; i++)
    {
-      std::fill_n(micdata.micFFTData, samples / 2, 0);
-      std::copy(vData, vData + 1024, micdata.micFFTData);
-      // Serial.println(" \n");
-      // Serial.print("MIC FFT DATA");
-      for (int i = 0; i < samples / 2; i++)
-      {
-         // Serial.print(micdata.micFFTData[i] / samples, 6);
-         // Serial.print(" ");
-      }
+      accdata.accFFTData[i] = vData[i] / samples;
    }
-   else
+
+   if (hardCodedAlgorithmFlag == 1)
    {
-      Serial.println(" \n");
-      Serial.print("ACC FFT DATA");
-      std::fill_n(accdata.accFFTData, samples / 2, 0);
-      std::copy(vData, vData + 1024, accdata.accFFTData);
-      for (int i = 0; i < samples / 2; i++)
-      {
-         Serial.print(accdata.accFFTData[i] / samples, 6);
-         Serial.print(", ");
-      }
-      if (hardCodedAlgorithmFlag == 1)
-      {
-         emailNotification();
-      }
+      emailNotification();
+   }
+   // }
+}
+
+void printValues()
+{
+   for (int i = 0; i < samples / 2; i++)
+   {
+      Serial.print(accdata.accFFTData[i], 6);
+      Serial.print(", ");
    }
 }
 
@@ -200,6 +209,7 @@ void calc(double vReal[2048], double samplingFrequency)
       // logFreq(vReal, samples / 2, samplingFrequency);
       // fftPrint(vReal);
       saveValues(vReal, samplingFrequency);
+      // printValues();
 
       std::fill_n(vImag, samples, 0);
       std::fill_n(vReal, samples, 0);

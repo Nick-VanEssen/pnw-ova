@@ -4,7 +4,6 @@
 #include <LittleFS.h>
 #include <WiFiManager.h>
 #include "pdm_mic.h"
-#include "email.h"
 #include "settings.h"
 #include "ESPAsyncWebServer.h"
 #include <ArduinoJson.h>
@@ -22,7 +21,6 @@ char userEmail[50] = "open.vibration.analysis@gmail.com"; // Default before one 
 high_resolution_clock::time_point start;
 DNSServer dnsServer;
 WiFiManager wm;
-MAILRESULTS mailResults;
 AsyncWebServer server(80);
 AsyncWebSocket websocket("/ws");
 
@@ -37,7 +35,7 @@ char *sendFFTData()
 
   for (int i = 0; i < 1024; i += 2)
   {
-    double magValue = floor((accdata.accFFTData[i]) * 100.0) / 100.0; // Average of i and i+1, truncated to 2 decimal places
+    double magValue = accdata.accFFTData[i]; // Average of i and i+1, truncated to 2 decimal places
     magnitude[i / 2] = magValue;
     freq[i / 2] = i;
   }
@@ -49,6 +47,9 @@ char *sendFFTData()
 
   // Serialize the JSON document to the char array
   serializeJson(doc, jsonString, neededSize);
+
+  // Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
+  // Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
 
   // Return the JSON string. Caller is responsible for deleting it after use.
   return jsonString;
@@ -182,21 +183,6 @@ void loop()
   // Set as static so it is only initialized once
 
   wm.process();
-
-  // static unsigned long lastEmailSendTime = 0;
-  // if (millis() - lastEmailSendTime > 5000)
-  // {
-  //   emailNotification();
-  //   lastEmailSendTime = millis();
-  // }
-
-  // Use code below to send a test email every 30 seconds
-  // static unsigned long lastEmailSendTime = 0;
-  // if (millis() - lastEmailSendTime > 30000)
-  // {
-  //   mailResults.send();
-  //   lastEmailSendTime = millis();
-  // }
 
   // Send fft data after 1 second
   static unsigned long lastFFTDataSendTime = 0;
