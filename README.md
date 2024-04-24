@@ -16,5 +16,3 @@ The vibration analysis device would work by being attached to the consumer appli
 # Outcome
 The anticipated outcome is a relatively small device, around 5”x5”, that can easily be attached to a consumer appliance, connected to a power supply, and easily configured with a user-friendly software. This software could connect to a phone and send notification alerts when the device senses abnormalities in the appliance. The device would ideally serve a wide range of consumers and work with most home appliances, such as washing/drying machines, refrigerators, AC units, and more.
 
-
-test
