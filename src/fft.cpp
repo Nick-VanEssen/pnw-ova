@@ -16,7 +16,9 @@ using namespace std::chrono;
 // http://wiki.openmusiclabs.com/wiki/ArduinoFFT
 
 arduinoFFT FFTfunc = arduinoFFT();
+sensitivity sensitivityValue;
 stopStartToggle stopstarttoggle;
+reAverageData reaveragedata;
 bool badDataFlag = 0;
 int alertCounter = 0;
 int averagedDataSets = 0;
@@ -71,7 +73,14 @@ void logFreq(double vData[2048], uint16_t bufferSize, double samplingFrequency)
 
 void emailNotification()
 {
-   if (averagedDataSets < 50)
+   if (reaveragedata.reAverageFlag == 1)
+   {
+      averagedDataSets = 0;
+      alertCounter = 0;
+      fill_n(goodaccdata.goodData, 1024, 0);
+      reaveragedata.reAverageFlag = 0;
+   }
+   if (averagedDataSets < 10)
    {
       for (int i = 0; i < 1024; i++)
       {
@@ -79,7 +88,7 @@ void emailNotification()
          {
             Serial.print("\n");
             Serial.print(accdata.accFFTData[i]);
-            Serial.print("Out of range!");
+            Serial.print(" Out of range!");
             Serial.print("\n");
             beginAverage = 0;
             break;
@@ -100,14 +109,14 @@ void emailNotification()
       Serial.print("\n");
       beginAverage = 1;
    }
-   if (averagedDataSets == 50)
+   if (averagedDataSets == 10)
    {
       for (int i = 0; i < 1024; i++)
       {
          // Serial.print(goodaccdata.goodData[i] / 50, 6);
          // Serial.print(", ");
          // || ((accdata.accFFTData[i]) < ((goodaccdata.goodData[i]) * 0.00001))
-         if (((accdata.accFFTData[i]) > ((goodaccdata.goodData[i] / 50) * 5)))
+         if (((accdata.accFFTData[i]) > ((goodaccdata.goodData[i] / 10) * sensitivityValue.sensValue)))
          {
             badDataFlag = 1;
             Serial.print("\n");
@@ -143,6 +152,7 @@ void emailNotification()
             Serial.print("\n");
             Serial.print("!-!-!-!-!-!-!-!-DATA FAILED CHECK, SENDING ALERT-!-!-!-!-!-!-!-!");
             Serial.print("\n");
+            alertCounter = 0;
             // mailResults.send();
          }
          badDataFlag = 0;

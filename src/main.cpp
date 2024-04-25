@@ -48,6 +48,7 @@ char *sendFFTData()
   // Serialize the JSON document to the char array
   serializeJson(doc, jsonString, neededSize);
 
+  // Uncomment the next two lines to see available heap and best block through each serialization.
   // Serial.printf("Free Heap: %d \n", ESP.getFreeHeap());
   // Serial.printf("Best Block: %d \n", heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
 
@@ -55,10 +56,66 @@ char *sendFFTData()
   return jsonString;
 }
 
-void notifyClients(char *data)
+char *sendSensitivityData()
+{
+  JsonDocument doc;
+
+  JsonArray sensitivity = doc["sensitivity"].to<JsonArray>();
+  if (sensitivityValue.sensValue <= 1)
+  {
+    sensitivity[0] = 10;
+  }
+  if (sensitivityValue.sensValue > 1 && sensitivityValue.sensValue < 5)
+  {
+    sensitivity[0] = 10 - sensitivityValue.sensValue;
+  }
+  else if (sensitivityValue.sensValue == 5)
+  {
+    sensitivity[0] = sensitivityValue.sensValue;
+  }
+  else if (sensitivityValue.sensValue < 10 && sensitivityValue.sensValue > 5)
+  {
+    sensitivity[0] = 10 - sensitivityValue.sensValue;
+  }
+  else if (sensitivityValue.sensValue >= 10)
+  {
+    sensitivity[0] = 1;
+  }
+
+  doc.shrinkToFit();
+
+  size_t neededSize = measureJson(doc) + 1;
+  char *jsonString = new char[neededSize];
+
+  serializeJson(doc, jsonString, neededSize);
+
+  return jsonString;
+}
+
+char *sendStopStartData()
+{
+  JsonDocument doc;
+
+  JsonArray stopStartData = doc["stopstartdata"].to<JsonArray>();
+  stopStartData[0] = stopstarttoggle.stopStartFlag;
+
+  doc.shrinkToFit();
+
+  size_t neededSize = measureJson(doc) + 1;
+  char *jsonString = new char[neededSize];
+
+  serializeJson(doc, jsonString, neededSize);
+
+  return jsonString;
+}
+
+void notifyClients(const char *data, bool dynamic = false)
 {
   websocket.textAll(data);
-  delete[] data; // Make sure to free the allocated memory after sending
+  if (dynamic)
+  {
+    delete[] data;
+  }
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -66,25 +123,82 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    data[len] = 0;
-    if (strcmp((char *)data, "getReadings") == 0)
+    data[len] = 0; // Null-terminate the data to handle it as a string.
+
+    // Convert uint8_t* to char* for string manipulation
+    char *charData = (char *)data;
+
+    // Handle string commands
+    if (strcmp(charData, "getReadings") == 0)
     {
       char *sensorReadings = sendFFTData();
-      notifyClients(sensorReadings);
+      notifyClients(sensorReadings, true);
     }
-    if (strchr((char *)data, '@') != nullptr)
+    else if (strcmp(charData, "getSensitivity") == 0)
     {
-      strncpy(userEmail, (char *)data, sizeof(userEmail) - 1); // Copy data into userEmail
-      userEmail[sizeof(userEmail) - 1] = '\0';                 // Ensure null-termination
+      char *sens = sendSensitivityData();
+      notifyClients(sens, true);
+    }
+    else if (strcmp(charData, "getStopStart") == 0)
+    {
+      char *stpstrt = sendStopStartData();
+      notifyClients(stpstrt, true);
+    }
+    else if (strchr(charData, '@') != nullptr)
+    {
+      strncpy(userEmail, charData, sizeof(userEmail) - 1); // Copy data into userEmail
+      userEmail[sizeof(userEmail) - 1] = '\0';             // Ensure null-termination
       Serial.print(userEmail);
     }
-    if (strcmp((char *)data, "Start") == 0)
+    else if (strcmp(charData, "Start") == 0)
     {
       stopstarttoggle.stopStartFlag = 1;
     }
-    if (strcmp((char *)data, "Stop") == 0)
+    else if (strcmp(charData, "Stop") == 0)
     {
       stopstarttoggle.stopStartFlag = 0;
+    }
+    else if (strcmp(charData, "reAverage") == 0)
+    {
+      reaveragedata.reAverageFlag = 1;
+    }
+
+    else
+    {
+      // If a number gets sent through the websocket, handle it via Json
+      JsonDocument doc;
+      DeserializationError error = deserializeJson(doc, charData);
+      if (error)
+      {
+        Serial.print("deserializeJson() failed: ");
+        Serial.println(error.c_str());
+        return;
+      }
+
+      if (doc.containsKey("sensitivity"))
+      {
+        double sensitivity = doc["sensitivity"];
+        if (sensitivity <= 1)
+        {
+          sensitivityValue.sensValue = 10;
+        }
+        if (sensitivity > 1 && sensitivity < 5)
+        {
+          sensitivityValue.sensValue = 10 - sensitivity;
+        }
+        else if (sensitivity == 5)
+        {
+          sensitivityValue.sensValue = sensitivity;
+        }
+        else if (sensitivity < 10 && sensitivity > 5)
+        {
+          sensitivityValue.sensValue = 10 - sensitivity;
+        }
+        else if (sensitivity >= 10)
+        {
+          sensitivityValue.sensValue = 1;
+        }
+      }
     }
   }
 }
@@ -118,17 +232,6 @@ high_resolution_clock::time_point getStartTime()
 {
   return start;
 }
-
-// Find IP of board, set it as string to be used in index. Most likely not used anymore.
-// String processor(const String &var)
-// {
-
-//   if (var == "IPaddress")
-//   {
-//     return WiFi.localIP().toString();
-//   }
-//   return String();
-// }
 
 void setup()
 {
@@ -171,10 +274,7 @@ void setup()
   websocket.onEvent(onEvent);
   server.addHandler(&websocket);
 
-  // pdm.setup();
   acc.setup();
-  // mon.setup();
-  // startTime();
 }
 
 void loop()
@@ -188,7 +288,7 @@ void loop()
   static unsigned long lastFFTDataSendTime = 0;
   if (millis() - lastFFTDataSendTime > 1000 && stopstarttoggle.stopStartFlag == 1)
   {
-    notifyClients(sendFFTData());
+    notifyClients(sendFFTData(), true);
     lastFFTDataSendTime = millis();
   }
   websocket.cleanupClients();

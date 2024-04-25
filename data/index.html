@@ -49,11 +49,43 @@
         top: 0;
       }
       #highlight {
-        color: #b30000; /* Or any other color you prefer */
+        color: #b30000;
       }
       #stopstartbutton {
         padding: 10px 30px;
         font-size: 20px;
+      }
+      #reaveragebutton {
+        padding: 10px 30px;
+        font-size: 20px;
+      }
+      #valuetext {
+        color: #e5e5e5;
+      }
+      #valuenum {
+        color: #e5e5e5;
+      }
+      .slider {
+        -webkit-appearance: none;
+        width: 50%;
+        height: 25px;
+        background: #242525;
+        outline: none;
+        opacity: 1;
+      }
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #4bc0c0;
+        cursor: pointer;
+      }
+      .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #4bc0c0;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -68,15 +100,30 @@
     <div style="width: 70%; margin: auto">
       <canvas id="myChart"></canvas>
     </div>
-    <br /><br />
-    <div style="width: 70%; margin: auto">
+    <div style="width: 70%; margin: auto; margin-top: 20px">
       <label for="email">Email:</label>
       <input type="text" id="email" name="email" />
       <button id="saveButton">Save</button>
     </div>
-    <br /><br />
-    <div style="width: 70%; margin: auto">
+    <div style="width: 70%; margin: auto; margin-top: 10px">
+      <input
+        type="range"
+        min="1"
+        max="10"
+        value="5"
+        step="0.1"
+        class="slider"
+        id="myrange"
+      />
+    </div>
+    <span id="valuetext"
+      >Detection Sensitivity: <span id="valuenum"></span
+    ></span>
+    <div style="width: 70%; margin: auto; margin-top: 20px">
       <input type="button" id="stopstartbutton" value="Start" />
+    </div>
+    <div style="width: 70%; margin: auto; margin-top: 10px">
+      <input type="button" id="reaveragebutton" value="Re-Average" />
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
