@@ -75,6 +75,9 @@ void emailNotification()
 {
    if (reaveragedata.reAverageFlag == 1)
    {
+      Serial.print("\n");
+      Serial.print("Re-Averaging...");
+      Serial.print("\n");
       averagedDataSets = 0;
       alertCounter = 0;
       fill_n(goodaccdata.goodData, 1024, 0);
@@ -113,9 +116,6 @@ void emailNotification()
    {
       for (int i = 0; i < 1024; i++)
       {
-         // Serial.print(goodaccdata.goodData[i] / 50, 6);
-         // Serial.print(", ");
-         // || ((accdata.accFFTData[i]) < ((goodaccdata.goodData[i]) * 0.00001))
          if (((accdata.accFFTData[i]) > ((goodaccdata.goodData[i] / 10) * sensitivityValue.sensValue)))
          {
             badDataFlag = 1;
@@ -153,7 +153,7 @@ void emailNotification()
             Serial.print("!-!-!-!-!-!-!-!-DATA FAILED CHECK, SENDING ALERT-!-!-!-!-!-!-!-!");
             Serial.print("\n");
             alertCounter = 0;
-            // mailResults.send();
+            mailResults.send();
          }
          badDataFlag = 0;
       }
